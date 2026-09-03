@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
  * 1行日記
@@ -70,5 +73,36 @@ class Diary extends Model
     public function hasImage(): bool
     {
         return $this->image_path !== null;
+    }
+
+    /**
+     * アップロードされた画像を public ディスクに保存し、パスを持つ (save は呼び出し側で行う)。
+     * ファイル名は推測されにくいよう ULID にし、拡張子は検証済みの jpg に固定する
+     */
+    public function attachImage(UploadedFile $file): static
+    {
+        // 差替のときは古いファイルを先に消す
+        $this->removeImage();
+
+        $path = $file->storeAs(self::IMAGE_DIR, Str::ulid().'.jpg', self::IMAGE_DISK);
+        if ($path === false) {
+            throw new RuntimeException('画像の保存に失敗しました。');
+        }
+        $this->image_path = $path;
+
+        return $this;
+    }
+
+    /**
+     * 画像ファイルを削除してパスを空にする (save は呼び出し側で行う)
+     */
+    public function removeImage(): static
+    {
+        if ($this->image_path !== null) {
+            Storage::disk(self::IMAGE_DISK)->delete($this->image_path);
+            $this->image_path = null;
+        }
+
+        return $this;
     }
 }

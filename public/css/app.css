@@ -101,3 +101,44 @@ body {
 .page-link.is-disabled {
     color: #aaa;
 }
+
+/* フォーム */
+.button {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid #222;
+    background: #222;
+    color: #fff;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.diary-form {
+    max-width: 480px;
+}
+
+.field {
+    margin-bottom: 1rem;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.field input[type="date"],
+.field input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem;
+    font: inherit;
+    border: 1px solid #bbb;
+}
+
+.error {
+    margin: 0.25rem 0 0;
+    color: #b00020;
+    font-size: 0.85rem;
+}
