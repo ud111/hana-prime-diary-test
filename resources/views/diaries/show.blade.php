@@ -21,14 +21,15 @@
     </div>
 
     <article class="card flex flex-col gap-6 p-5 sm:p-8">
-        <header class="flex flex-col gap-1">
-            <h1 class="text-[22px] font-bold tracking-tight sm:text-[26px]">
+        {{-- 日付は控えめに、本文を主役にする --}}
+        <header>
+            <h1 class="text-sm font-semibold text-on-surface-variant">
                 <time datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>
             </h1>
         </header>
-        <div class="border-l-4 border-primary/60 pl-5">
-            <p class="text-[19px] font-medium leading-relaxed break-all sm:text-[21px]">{{ $diary->content }}</p>
-            <p class="num mt-2 text-[13px] text-on-surface-variant">{{ mb_strlen($diary->content) }} 文字</p>
+        <div>
+            <p class="text-[24px] font-bold leading-relaxed tracking-tight break-all sm:text-[30px]">{{ $diary->content }}</p>
+            <p class="num mt-3 text-[13px] text-on-surface-variant">{{ mb_strlen($diary->content) }} 文字</p>
         </div>
         @if ($diary->hasImage())
             {{-- 画像が横幅に満たないときは、同じ画像を引き伸ばしてぼかした背景で余白を埋める --}}
