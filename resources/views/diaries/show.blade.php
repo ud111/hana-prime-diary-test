@@ -21,14 +21,14 @@
         @endauth
     </div>
 
-    <article class="card flex flex-col gap-6 py-5 sm:py-8 sm:px-12">
+    <article class="card flex flex-col gap-6 p-5 sm:py-8 sm:px-12">
         {{-- 日付は控えめに、本文を主役にする --}}
         <header class="flex flex-col gap-2">
             <h1 class="text-sm font-normal text-on-surface-variant">
                 <time class="text-gray-500" datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>
             </h1>
             <div>
-                <p class="text-[24px] font-bold leading-relaxed sm:leading-normal tracking-wide break-all sm:text-[34px] text-gray-900">{{ $diary->content }}</p>
+                <p class="text-[24px] font-bold leading-[1.5] sm:leading-normal tracking-wide break-all sm:text-[34px] text-gray-900">{{ $diary->content }}</p>
             </div>
         </header>
         @if ($diary->hasImage())
@@ -44,7 +44,7 @@
         @php($shareText = $diary->diary_date->isoFormat('YYYY年M月D日').'の日記 | '.config('app.name'))
         <div class="flex flex-col items-center gap-3 border-t border-outline-variant/50 pt-6">
             <span class="text-xs tracking-wider text-outline">この日記をシェアする</span>
-            <div class="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-lowest px-3 py-2 shadow-sm">
+            <div class="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-lowest px-3 py-1 sm:py-2 shadow-sm">
                 <a class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface" href="https://twitter.com/intent/tweet?{{ http_build_query(['text' => $shareText, 'url' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer" title="X でシェア" aria-label="X でシェア">
                     <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
@@ -65,7 +65,7 @@
   </div>
 
     {{-- 前後の日記への導線 (一覧と同じ並び。左が古い日記、右が新しい日記) --}}
-    <nav class="grid gap-3 sm:grid-cols-2" aria-label="前後の日記">
+    <nav class="grid gap-2 sm:gap-3 sm:grid-cols-2" aria-label="前後の日記">
         @include('diaries._nav_card', ['target' => $older, 'direction' => 'older'])
         @include('diaries._nav_card', ['target' => $newer, 'direction' => 'newer'])
     </nav>

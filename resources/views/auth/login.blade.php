@@ -3,9 +3,8 @@
 @section('title', 'ログイン | '.config('app.name'))
 
 @section('content')
-    <section class="card mx-auto mt-4 flex w-full max-w-sm flex-col gap-6 p-6 sm:p-8">
+    <section class="card m-auto mt-4 flex w-full max-w-sm flex-col gap-6 p-6 sm:p-8">
         <div class="flex flex-col items-center gap-3 text-center">
-            <span class="num flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-base font-bold text-on-primary">1</span>
             <div class="flex flex-col gap-1">
                 <h1 class="text-lg font-bold tracking-tight">ログイン</h1>
                 <p class="text-[13px] text-on-surface-variant">日記の投稿・編集・削除は持ち主だけができます。</p>
