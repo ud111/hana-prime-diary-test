@@ -36,6 +36,14 @@ class Diary extends Model
 
     public const IMAGE_DIR = 'diaries';
 
+    protected static function booted(): void
+    {
+        // レコードの削除が成功してから画像ファイルを消す (先に消すと DB 側の失敗で画像だけ失う)
+        static::deleted(function (Diary $diary): void {
+            self::deleteImageFile($diary->image_path);
+        });
+    }
+
     protected function casts(): array
     {
         return [
