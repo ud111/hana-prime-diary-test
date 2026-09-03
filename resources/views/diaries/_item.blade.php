@@ -26,16 +26,7 @@
                     <x-icon name="pencil" class="h-3.5 w-3.5"/>
                     編集
                 </a>
-                {{-- 削除は誤操作を防ぐため確認ダイアログを挟む。JS 無効時はそのまま送信される --}}
-                <form method="POST" action="{{ route('diaries.destroy', $diary) }}"
-                      onsubmit="return confirm('この日記を削除します。よろしいですか？')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="action-link action-link-danger">
-                        <x-icon name="trash" class="h-3.5 w-3.5"/>
-                        削除
-                    </button>
-                </form>
+                @include('diaries._delete_form', ['diary' => $diary])
             </div>
         @endauth
     </div>

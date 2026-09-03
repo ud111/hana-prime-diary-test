@@ -15,14 +15,7 @@
                     <x-icon name="pencil" class="h-4 w-4"/>
                     <span>編集する</span>
                 </a>
-                <form method="POST" action="{{ route('diaries.destroy', $diary) }}"
-                      onsubmit="return confirm('この日記を削除します。よろしいですか？')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-full text-error transition hover:bg-error-container/60" title="削除" aria-label="削除">
-                        <x-icon name="trash" class="h-4 w-4"/>
-                    </button>
-                </form>
+                @include('diaries._delete_form', ['diary' => $diary, 'iconOnly' => true])
             </div>
         @endauth
     </div>

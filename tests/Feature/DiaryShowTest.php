@@ -51,6 +51,16 @@ class DiaryShowTest extends TestCase
         $this->get(route('diaries.index'))->assertOk()->assertSee(route('diaries.show', $diary));
     }
 
+    public function test_escapes_content(): void
+    {
+        $diary = Diary::factory()->create(['content' => '<script>alert(1)</script>']);
+
+        $this->get(route('diaries.show', $diary))
+            ->assertOk()
+            ->assertSee('&lt;script&gt;', false)
+            ->assertDontSee('<script>alert(1)</script>', false);
+    }
+
     public function test_returns_404_for_missing_diary(): void
     {
         $this->get(route('diaries.show', 9999))->assertNotFound()->assertSee('ページが見つかりません');
