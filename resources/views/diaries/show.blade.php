@@ -65,8 +65,8 @@
         @if ($diary->hasImage())
             {{-- 画像が横幅に満たないときは、同じ画像を引き伸ばしてぼかした背景で余白を埋める --}}
             <figure class="relative overflow-hidden rounded-xl border border-outline-variant bg-surface-low">
-                <img class="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-2xl" src="{{ $diary->image_url }}" alt="" aria-hidden="true">
-                <img class="relative mx-auto block max-h-[32rem] w-auto max-w-full" src="{{ $diary->image_url }}" alt="{{ $diary->diary_date->toDateString() }} の写真">
+                <x-diary-image :diary="$diary" :width="480" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-2xl" alt="" aria-hidden="true"/>
+                <x-diary-image :diary="$diary" :width="1200" class="relative mx-auto block max-h-[32rem] w-auto max-w-full" :alt="$diary->diary_date->toDateString().' の写真'" loading="eager" fetchpriority="high"/>
             </figure>
         @endif
 

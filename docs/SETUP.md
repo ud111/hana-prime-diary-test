@@ -86,7 +86,18 @@ docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS dia
 
 注意: 26.7 で作ったデータディレクトリは 9.7 では開けません。既にボリューム `hana_prime_diary_test_db_data` がある場合は、別名のボリュームに変えるか、データが不要であればボリュームを削除してから起動してください。
 
-## 6. CSS を変更するとき
+## 6. 画像の軽量版
+
+アップロードした JPEG はそのまま保存しつつ、配信用に幅 480 と 1200 の WebP / AVIF を保存時に生成します（`app/Services/DiaryImageProcessor.php`）。一覧と詳細は `<picture>` で AVIF → WebP → JPEG の順に選ばれます。軽量化の導入前にアップロードした画像がある場合は、次で軽量版を作れます。
+
+```bash
+docker compose exec app php artisan diaries:regenerate-images        # 未生成の画像だけ
+docker compose exec app php artisan diaries:regenerate-images --force # すべて作り直す
+```
+
+PHP の GD に WebP / AVIF 対応が必要です（`docker/php/Dockerfile` で有効化済み）。
+
+## 7. CSS を変更するとき
 
 CSS は Tailwind CSS 4 を CLI でビルドしています。入力は `resources/css/app.css`、出力は `public/css/app.css` で、**出力もコミットします**（審査者は Node 不要）。編集したら次でビルドしてから、入力と出力の両方をコミットしてください。
 
@@ -97,7 +108,7 @@ docker compose --profile build run --rm node npm run build # public/css/app.css 
 
 編集しながら自動でビルドするには `npm run watch` を使います。CI では再ビルドしてコミット済みの出力と一致するかを確認しているので、ビルドを忘れると CI が失敗します。`node` サービスは `build` プロファイル専用で、通常の `docker compose up` では起動しません。
 
-## 7. 停止
+## 8. 停止
 
 ```bash
 docker compose down        # コンテナを停止 (データは残る)

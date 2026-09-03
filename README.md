@@ -78,6 +78,13 @@ docker compose exec app vendor/bin/pint --test  # コード整形チェック
 - `/robots.txt` と `/sitemap.xml` を動的に返します（sitemap は 1 時間キャッシュし、日記の保存・削除で更新）
 - 絶対 URL は `.env` の `APP_URL` から組み立てるので、公開時はそこを変えるだけです
 
+## 画像の軽量化
+
+- アップロードした JPEG から、保存時に幅 480 / 1200 の WebP と AVIF を生成し、`<picture>` で軽い形式から順に配信します。OGP には互換性のため元の JPEG を使います
+- 画像には `width` / `height` を出し、一覧は遅延読み込み、詳細の主画像は優先読み込みです
+- nginx で画像と CSS を 7 日キャッシュし、テキストは gzip で送ります（CSS は更新時刻をクエリに付けて差し替え時に取り直します）
+- 計測（2400×1600 の JPEG、186KB）: 1200 幅は WebP 29KB / AVIF 21KB（JPEG なら 56KB）、480 幅は WebP 7KB / AVIF 5KB（JPEG なら 13KB）。AVIF の生成は 1200 幅で 0.14 秒
+
 ## 開発の進め方
 
 - Issue ごとにブランチを切り、PR を作って Squash マージしています。CI（Pint と PHPUnit）が PR ごとに動きます

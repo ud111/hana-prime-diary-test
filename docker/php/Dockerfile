@@ -7,8 +7,12 @@ ARG GID=1000
 # Laravel / Composer に必要なツール・拡張
 # PHP 8.5 では OPcache が本体に組み込まれているため docker-php-ext-install opcache は不要
 # (実行するとビルドが失敗する)
-RUN apk add --no-cache git unzip \
-    && docker-php-ext-install pdo_mysql
+# GD は画像の軽量化 (WebP / AVIF への変換とサムネイル生成) に使う。ビルド用の -dev パッケージは入れた後に外す
+RUN apk add --no-cache git unzip libjpeg-turbo libwebp libavif libpng \
+    && apk add --no-cache --virtual .build-deps libjpeg-turbo-dev libwebp-dev libavif-dev libpng-dev \
+    && docker-php-ext-configure gd --with-jpeg --with-webp --with-avif \
+    && docker-php-ext-install pdo_mysql gd \
+    && apk del .build-deps
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY php.ini /usr/local/etc/php/conf.d/zz-app.ini

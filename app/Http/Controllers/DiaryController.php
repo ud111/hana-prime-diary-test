@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDiaryRequest;
 use App\Http\Requests\UpdateDiaryRequest;
 use App\Models\Diary;
+use App\Services\DiaryImageProcessor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class DiaryController extends Controller
 {
+    public function __construct(private readonly DiaryImageProcessor $images) {}
+
     /** 一覧の 1 ページあたりの件数 (課題仕様: 5 件ごと) */
     public const PER_PAGE = 5;
 
@@ -53,9 +56,10 @@ class DiaryController extends Controller
     {
         $diary = new Diary($request->safe()->only(['diary_date', 'content']));
 
-        // 画像は任意。あれば public ディスクに保存してからレコードを作る
+        // 画像は任意。あれば public ディスクに保存し、配信用の軽量版 (WebP / AVIF) を作ってからレコードを作る
         if ($request->hasFile('image')) {
             $diary->attachImage($request->file('image'));
+            $this->images->process($diary);
         }
 
         try {
@@ -88,6 +92,7 @@ class DiaryController extends Controller
         if ($request->hasFile('image')) {
             // 新しい画像を選んだときは差替。削除チェックが同時に付いていても新しい画像を優先する
             $diary->attachImage($request->file('image'));
+            $this->images->process($diary);
         } elseif ($request->boolean('remove_image')) {
             $diary->detachImage();
         }

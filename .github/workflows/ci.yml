@@ -40,7 +40,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.5"
-          extensions: mbstring, pdo_mysql, xml, ctype, fileinfo, tokenizer
+          extensions: mbstring, pdo_mysql, xml, ctype, fileinfo, tokenizer, gd
           coverage: none
           tools: composer:v2
 
