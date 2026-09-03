@@ -160,3 +160,18 @@ body {
     margin: 0.5rem 0 0.75rem;
     font-size: 0.9rem;
 }
+
+/* リンク風の送信ボタン (削除) */
+.diary-actions form {
+    display: inline;
+}
+
+.link-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: #b00020;
+    text-decoration: underline;
+    cursor: pointer;
+}

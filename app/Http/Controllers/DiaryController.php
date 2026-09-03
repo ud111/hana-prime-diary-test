@@ -97,4 +97,14 @@ class DiaryController extends Controller
 
         return redirect()->route('diaries.index')->with('status', '更新しました。');
     }
+
+    /**
+     * 日記を削除する。画像ファイルはモデルの deleted イベントで消える
+     */
+    public function destroy(Diary $diary): RedirectResponse
+    {
+        $diary->delete();
+
+        return redirect()->route('diaries.index')->with('status', '削除しました。');
+    }
 }

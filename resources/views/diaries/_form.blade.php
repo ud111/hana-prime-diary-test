@@ -24,7 +24,7 @@
         <p class="field-label">現在の画像</p>
         <img class="diary-image" src="{{ $diary->image_url }}" alt="現在の画像">
         <label class="checkbox">
-            <input type="checkbox" name="remove_image" value="1" @checked(old('remove_image'))>
+            <input type="checkbox" name="remove_image" value="1" @checked(old('remove_image') === '1')>
             画像を削除する
         </label>
         @error('remove_image')
