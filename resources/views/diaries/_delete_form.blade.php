@@ -8,7 +8,7 @@
     @csrf
     @method('DELETE')
     @if ($iconOnly)
-        <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-full text-error transition hover:bg-error-container/60" title="{{ $label }}" aria-label="{{ $label }}">
+        <button type="submit" class="btn-icon text-error hover:bg-error-container/50 hover:text-on-error-container" title="{{ $label }}" aria-label="{{ $label }}">
             <x-icon name="trash" class="h-4 w-4"/>
         </button>
     @else

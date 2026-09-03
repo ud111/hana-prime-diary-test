@@ -1,29 +1,26 @@
 /*
  * このファイルが CSS の入力。npm run build で public/css/app.css に出力する (出力はコミットする)。
- * 色とフォントは Stitch のデザイン (One-Line Diary App) のトークンを @theme で定義し、
- * 画面側は Tailwind のユーティリティで組む。
+ * 色は Stitch のデザイン (One-Line Diary App) を基にした白基調の Material トークン。
+ * 藍色 (primary) は主要ボタン・現在ページ・フォーカスの 3 か所にだけ使い、面は白と淡いグレーの 2 段、境界は薄い 1px 線で作る。
  */
 @import "tailwindcss";
 
 @theme {
-    --font-sans: "Inter", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-sans: "Noto Sans JP", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-num: "Inter", "Noto Sans JP", system-ui, sans-serif;
 
-    /* Stitch のデザイントークン (Material 系) */
     --color-primary: #3525cd;
     --color-primary-container: #4f46e5;
     --color-on-primary: #ffffff;
     --color-primary-fixed: #e2dfff;
-    --color-on-primary-fixed: #0f0069;
     --color-background: #f7f9fb;
     --color-surface-lowest: #ffffff;
-    --color-surface-low: #f2f4f6;
+    --color-surface-low: #f3f4f7;
     --color-surface-container: #eceef0;
-    --color-surface-high: #e6e8ea;
-    --color-surface-dim: #d8dadc;
     --color-on-surface: #191c1e;
-    --color-on-surface-variant: #464555;
-    --color-outline: #777587;
-    --color-outline-variant: #c7c4d8;
+    --color-on-surface-variant: #5b5a6b;
+    --color-outline: #8c8a9c;
+    --color-outline-variant: #e3e2ec;
     --color-error: #ba1a1a;
     --color-error-container: #ffdad6;
     --color-on-error-container: #93000a;
@@ -35,39 +32,56 @@
     html {
         color-scheme: light;
     }
+    body {
+        font-feature-settings: "palt";
+        letter-spacing: 0.01em;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            transition: none !important;
+        }
+    }
 }
 
 @layer components {
-    /* 主要ボタン (投稿・保存・ログイン) */
+    /* 主要ボタン。1 画面に 1 つだけ藍色にする */
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary shadow-sm transition hover:bg-primary-container focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40;
+        @apply inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-container focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
     }
-    /* 控えめなボタン (キャンセル・ナビ) */
-    .btn-tonal {
-        @apply inline-flex items-center justify-center gap-1.5 rounded-full bg-surface-low px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40;
+    /* 副次ボタン (キャンセル・戻る・ログイン導線) */
+    .btn-secondary {
+        @apply inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-outline-variant bg-surface-lowest px-4 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-low focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
     }
-    /* 文字リンク風の操作 (編集・削除) */
+    /* アイコンだけの丸ボタン */
+    .btn-icon {
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
+    }
+    /* 文字リンク風の小さな操作 (編集・削除) */
     .action-link {
-        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold text-on-surface-variant transition hover:bg-surface-low hover:text-on-surface;
+        @apply inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
     }
     .action-link-danger {
-        @apply text-error hover:bg-error-container/60 hover:text-on-error-container;
+        @apply text-error hover:bg-error-container/50 hover:text-on-error-container;
     }
-    /* カード */
+    /* 面 (カード)。影は使わず薄い線で区切る */
     .card {
-        @apply rounded-xl bg-surface-lowest p-5 shadow-sm sm:p-6;
+        @apply rounded-2xl border border-outline-variant bg-surface-lowest;
     }
     /* フォーム */
     .field-label {
-        @apply mb-1.5 block text-sm font-semibold text-on-surface;
+        @apply mb-2 block text-sm font-semibold text-on-surface;
     }
     .field-input {
-        @apply w-full rounded-lg border border-outline-variant bg-surface-lowest px-3.5 py-2.5 text-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+        @apply h-11 w-full rounded-lg border border-outline-variant bg-surface-lowest px-3.5 text-[15px] text-on-surface transition-colors placeholder:text-outline hover:border-outline focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15;
     }
     .field-hint {
-        @apply mt-1.5 text-xs text-on-surface-variant;
+        @apply mt-2 text-[13px] text-on-surface-variant;
     }
     .field-error {
-        @apply mt-1.5 text-xs font-medium text-error;
+        @apply mt-2 text-[13px] font-medium text-error;
+    }
+    /* 日付などの数字は Inter で揃える */
+    .num {
+        @apply font-num tabular-nums;
     }
 }

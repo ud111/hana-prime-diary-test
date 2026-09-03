@@ -3,35 +3,34 @@
 @section('title', '日記一覧 | '.config('app.name'))
 
 @section('content')
-    {{-- ヒーロー: サイトの趣旨と、持ち主向けの投稿導線 --}}
-    <section class="card flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <div class="flex flex-col gap-2">
-            <p class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
-                <x-icon name="code" class="h-4 w-4"/>
-                Daily Dev Reflection
-            </p>
-            <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">日々の開発の小さな前進を、たった1行に。</h1>
-            <p class="text-sm text-on-surface-variant">コミットに残らない小さな閃きや技術的知見を、余白の中に静かに残しましょう。</p>
+    {{-- ページの導入。統計や検索など仕様に無いものは置かない --}}
+    <section class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="flex flex-col gap-1.5">
+            <h1 class="text-[22px] font-bold leading-snug tracking-tight sm:text-[26px]">日々の開発の小さな前進を、たった1行に。</h1>
+            <p class="text-sm text-on-surface-variant">コミットに残らない気づきや学びを、1日1行だけ書き留めます。</p>
         </div>
         @auth
-            <a href="{{ route('diaries.create') }}" class="btn-primary shrink-0 self-start px-5 py-2.5 sm:self-center">
+            <a href="{{ route('diaries.create') }}" class="btn-primary shrink-0 self-start sm:self-auto">
                 <x-icon name="pencil" class="h-4 w-4"/>
-                <span>新規日誌を書く</span>
+                <span>日記を書く</span>
             </a>
         @endauth
     </section>
 
-    <section class="flex flex-col gap-4" aria-label="日記一覧">
+    <section class="flex flex-col gap-3" aria-label="日記一覧">
         <h2 class="sr-only">日記一覧</h2>
         {{-- 範囲外のページでも「日記がない」と誤解させないよう、総件数で判定する --}}
         @if ($diaries->total() === 0)
-            <div class="card flex flex-col items-center gap-2 py-12 text-center">
+            <div class="card flex flex-col items-center gap-3 px-6 py-14 text-center">
                 <span class="flex h-12 w-12 items-center justify-center rounded-full bg-surface-low text-outline">
-                    <x-icon name="image" class="h-6 w-6"/>
+                    <x-icon name="pencil" class="h-5 w-5"/>
                 </span>
-                <p class="text-sm font-semibold">まだ日記がありません。</p>
+                <p class="font-semibold">まだ日記がありません。</p>
                 @auth
-                    <p class="text-xs text-on-surface-variant">最初の 1 行を書いてみましょう。</p>
+                    <p class="text-sm text-on-surface-variant">今日の 1 行から始めましょう。</p>
+                    <a href="{{ route('diaries.create') }}" class="btn-primary mt-1">日記を書く</a>
+                @else
+                    <p class="text-sm text-on-surface-variant">持ち主がログインすると書き始められます。</p>
                 @endauth
             </div>
         @else
