@@ -2,7 +2,8 @@
     削除フォーム (一覧・詳細・編集で共用)。誤操作を防ぐため確認ダイアログを挟む。JS 無効時はそのまま送信される。
     $label はボタンの文言、$iconOnly が true ならアイコンだけの丸ボタンにする
 --}}
-@props(['diary', 'label' => '削除', 'iconOnly' => false])
+@php($label ??= '削除')
+@php($iconOnly ??= false)
 <form method="POST" action="{{ route('diaries.destroy', $diary) }}"
       onsubmit="return confirm('この日記を削除します。よろしいですか？')" class="shrink-0">
     @csrf

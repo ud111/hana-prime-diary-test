@@ -5,10 +5,7 @@
 @section('content')
   <div class="flex flex-col gap-3">
     <div class="flex items-center justify-between gap-3">
-        <a href="{{ route('diaries.index') }}" class="inline-flex items-center gap-1 text-[13px] font-medium text-on-surface-variant hover:text-primary">
-            <x-icon name="arrow-left" class="h-3.5 w-3.5"/>
-            一覧へ戻る
-        </a>
+        <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記']]"/>
         {{-- 編集・削除は持ち主だけ --}}
         @auth
             <div class="flex items-center gap-1">
@@ -23,13 +20,12 @@
 
     <article class="card flex flex-col gap-6 p-5 sm:py-8 sm:px-12">
         {{-- 日付は控えめに、本文を主役にする --}}
+        {{-- h1 はページの主題である本文。日付は副題として time で示す --}}
         <header class="flex flex-col gap-2">
-            <h1 class="text-sm font-normal text-on-surface-variant">
-                <time class="text-on-surface-variant" datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>
-            </h1>
-            <div>
-                <p class="text-[24px] font-bold leading-[1.5] sm:leading-normal tracking-wide break-all sm:text-[34px] text-on-surface">{{ $diary->content }}</p>
-            </div>
+            <p class="text-sm text-on-surface-variant">
+                <time datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>
+            </p>
+            <h1 class="text-[24px] font-bold leading-[1.5] sm:leading-normal tracking-wide break-all sm:text-[34px] text-on-surface">{{ $diary->content }}</h1>
         </header>
         @if ($diary->hasImage())
             {{-- 画像が横幅に満たないときは、同じ画像を引き伸ばしてぼかした背景で余白を埋める --}}

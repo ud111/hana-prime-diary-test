@@ -19,7 +19,8 @@ class DiaryShowTest extends TestCase
             ->assertOk()
             ->assertSee('2026年9月3日（木曜日）')
             ->assertSee('詳細ページの本文')
-            ->assertSee('一覧へ戻る')
+            ->assertSee('aria-label="パンくず"', false)
+            ->assertSee('日誌一覧')
             ->assertDontSee(route('diaries.edit', $diary))
             ->assertDontSee('name="_method" value="DELETE"', false);
     }
