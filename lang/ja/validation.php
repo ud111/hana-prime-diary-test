@@ -15,6 +15,7 @@ return [
     'mimetypes' => ':attributeは:values形式のファイルを選んでください。',
     'regex' => ':attributeの形式が正しくありません。',
     'boolean' => ':attributeの値が正しくありません。',
+    'email' => ':attributeの形式が正しくありません。',
 
     'attributes' => [],
 ];

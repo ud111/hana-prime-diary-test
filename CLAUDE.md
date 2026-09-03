@@ -25,8 +25,8 @@ Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。設計は `do
 ## Laravel Boost（MCP）
 
 - `.mcp.json` の `laravel-boost` は app コンテナ内で動く（`docker compose exec -T app php artisan boost:mcp`）。コンテナが起動していないと使えない。
-- Laravel 13 / Tailwind 4 の API や書き方に迷ったら、推測せず `search-docs` で確認する。調査には `database-schema`、`read-log-entries`、`last-error` を使う。
-- `record-rule` と `.ai/rules` は使わない。規約はこのファイルに書く。Boost が入れたスキル（`laravel-best-practices`、`testing-best-practices`）は Laravel 公式の参考資料として必要なときに読む。
+- Laravel 13（#9 以降は Tailwind 4 も）の API や書き方に迷ったら、推測せず `search-docs` で確認する。調査には `database-schema`、`read-log-entries`、`last-error` を使う。
+- `record-rule` と `.ai/rules` は使わない。規約はこのファイルに書く。Boost が入れたスキル（`laravel-best-practices`、`testing-best-practices`）は Laravel 公式の参考資料として必要なときに読む。テスト DB まわり（`RefreshDatabase` と `_test` ガード）はこのファイルの規約を優先する。
 
 ## 触らないもの
 

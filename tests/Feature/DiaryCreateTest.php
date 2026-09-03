@@ -12,6 +12,12 @@ class DiaryCreateTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->actingAsOwner();
+    }
+
     /** 妥当な投稿データ */
     private function validData(array $overrides = []): array
     {

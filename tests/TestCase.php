@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -25,5 +26,16 @@ abstract class TestCase extends BaseTestCase
         }
 
         return parent::setUpTraits();
+    }
+
+    /**
+     * 持ち主 (ログイン済みユーザー) として振る舞う。書き込み系のテストで使う
+     */
+    protected function actingAsOwner(): User
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        return $user;
     }
 }

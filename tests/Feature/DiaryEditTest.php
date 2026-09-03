@@ -16,6 +16,7 @@ class DiaryEditTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAsOwner();
         Storage::fake(Diary::IMAGE_DISK);
     }
 
