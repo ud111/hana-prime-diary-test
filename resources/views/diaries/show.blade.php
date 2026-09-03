@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@php($pageTitle = $diary->diary_date->isoFormat('YYYY年M月D日').' の日記 | '.config('app.name'))
+@php($dateLabel = $diary->diary_date->isoFormat('YYYY年M月D日'))
+@php($pageTitle = $dateLabel.' の日記 | '.config('app.name'))
 @section('title', $pageTitle)
 
 @php($ogImage = $diary->hasImage() ? $diary->image_url : asset('images/ogp.png'))
@@ -28,8 +29,8 @@
                 '@context' => 'https://schema.org',
                 '@type' => 'BreadcrumbList',
                 'itemListElement' => [
-                    ['@type' => 'ListItem', 'position' => 1, 'name' => '日誌一覧', 'item' => route('diaries.index')],
-                    ['@type' => 'ListItem', 'position' => 2, 'name' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記', 'item' => route('diaries.show', $diary)],
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => '日記一覧', 'item' => route('diaries.index')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => $dateLabel.'の日記', 'item' => route('diaries.show', $diary)],
                 ],
             ],
         ]"
@@ -39,9 +40,9 @@
 @endpush
 
 @section('content')
-  <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3">
     <div class="flex items-center justify-between gap-3">
-        <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記']]"/>
+        <x-breadcrumbs :items="[['label' => '日記一覧', 'url' => route('diaries.index')], ['label' => $dateLabel.'の日記']]"/>
         {{-- 編集・削除は持ち主だけ --}}
         @auth
             <div class="flex items-center gap-1">
@@ -72,7 +73,7 @@
 
         {{-- シェア (Stitch のデザイン)。外部スクリプトは読み込まず、各サービスの共有 URL とクリップボードだけで実装する --}}
         @php($shareUrl = route('diaries.show', $diary))
-        @php($shareText = $diary->diary_date->isoFormat('YYYY年M月D日').'の日記 | '.config('app.name'))
+        @php($shareText = $dateLabel.'の日記 | '.config('app.name'))
         <div class="flex flex-col items-center gap-3 border-t border-outline-variant/50 pt-6">
             <span class="text-xs tracking-wider text-on-surface-variant">この日記をシェアする</span>
             <div class="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-lowest px-3 py-1 sm:py-2 shadow-sm">
@@ -93,7 +94,7 @@
             </div>
         </div>
     </article>
-  </div>
+    </div>
 
     {{-- 前後の日記への導線 (一覧と同じ並び。左が古い日記、右が新しい日記) --}}
     <nav class="grid gap-2 sm:gap-3 sm:grid-cols-2" aria-label="前後の日記">

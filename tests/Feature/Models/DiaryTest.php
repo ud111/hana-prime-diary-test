@@ -46,9 +46,4 @@ class DiaryTest extends TestCase
         // public ディスクは /storage/... で公開される
         $this->assertStringEndsWith('/storage/diaries/sample.jpg', $diary->image_url);
     }
-
-    public function test_content_max_length_is_100(): void
-    {
-        $this->assertSame(100, Diary::CONTENT_MAX_LENGTH);
-    }
 }

@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "ud111/hana-prime-diary-test",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "1行日記サイト「ひとこと開発日誌」(Laravel 13 / PHP 8.5 / MySQL 26.7)",
     "keywords": [
         "laravel",
         "framework"

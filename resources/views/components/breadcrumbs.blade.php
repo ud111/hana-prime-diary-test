@@ -1,4 +1,4 @@
-{{-- パンくず。$items は [['label' => '日誌一覧', 'url' => '/'], ['label' => '編集']] の形で、最後の要素は現在地 (リンクなし) --}}
+{{-- パンくず。$items は [['label' => '日記一覧', 'url' => '/'], ['label' => '編集']] の形で、最後の要素は現在地 (リンクなし) --}}
 @props(['items'])
 <nav aria-label="パンくず" class="text-[13px] text-on-surface-variant">
     <ol class="flex flex-wrap items-center gap-1.5">

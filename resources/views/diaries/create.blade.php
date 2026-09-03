@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="flex flex-col gap-1.5">
-        <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => '新規投稿']]"/>
+        <x-breadcrumbs :items="[['label' => '日記一覧', 'url' => route('diaries.index')], ['label' => '新規投稿']]"/>
         <h1 class="text-[22px] font-bold tracking-tight">日記を書く</h1>
     </div>
 

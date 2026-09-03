@@ -30,8 +30,18 @@ class DiarySeeder extends Seeder
             // 同梱画像を public ディスクへ ULID 名でコピーし、配信用の軽量版も作る
             if ($entry['image'] !== null) {
                 $source = new File(self::IMAGE_DIR.'/'.$entry['image']);
-                $diary->image_path = Storage::disk(Diary::IMAGE_DISK)->putFileAs(Diary::IMAGE_DIR, $source, Str::ulid().'.jpg');
-                $processor->process($diary);
+                $path = Storage::disk(Diary::IMAGE_DISK)->putFileAs(Diary::IMAGE_DIR, $source, Str::ulid().'.jpg');
+                if ($path === false) {
+                    throw new \RuntimeException("画像をコピーできませんでした: {$entry['image']}");
+                }
+                $diary->image_path = $path;
+                try {
+                    $processor->process($diary);
+                } catch (\Throwable $e) {
+                    // 生成に失敗したらコピーした JPEG を残さない (投稿処理と同じ作法)
+                    Diary::deleteImageFile($diary->image_path);
+                    throw $e;
+                }
             }
 
             $diary->save();

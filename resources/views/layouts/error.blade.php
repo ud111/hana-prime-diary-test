@@ -7,6 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <title>@yield('title') | {{ config('app.name') }}</title>
     {{-- 長期キャッシュ (nginx) と両立させるため、CSS の更新時刻をクエリに付けて差し替え時に確実に取り直させる --}}
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : '' }}">

@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="flex flex-col gap-1.5">
-        <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記', 'url' => route('diaries.show', $diary)], ['label' => '編集']]"/>
+        <x-breadcrumbs :items="[['label' => '日記一覧', 'url' => route('diaries.index')], ['label' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記', 'url' => route('diaries.show', $diary)], ['label' => '編集']]"/>
         <div class="flex items-center justify-between gap-3">
             <h1 class="text-[22px] font-bold tracking-tight">日記を編集する</h1>
             @include('diaries._delete_form', ['diary' => $diary, 'label' => 'この日記を削除'])

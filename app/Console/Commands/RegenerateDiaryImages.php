@@ -14,6 +14,7 @@ class RegenerateDiaryImages extends Command
 
     public function handle(DiaryImageProcessor $processor): int
     {
+        // image_width が null = 軽量版が未生成 (導入前にアップロードした画像)。--force なら生成済みも作り直す
         $query = Diary::query()->whereNotNull('image_path');
         if (! $this->option('force')) {
             $query->whereNull('image_width');

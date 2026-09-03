@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <title>@yield('title', config('app.name'))</title>
     @stack('head')
     {{-- 本文は Noto Sans JP、数字と英字は Inter (Google Fonts)。読み込めない環境では system-ui にフォールバック --}}

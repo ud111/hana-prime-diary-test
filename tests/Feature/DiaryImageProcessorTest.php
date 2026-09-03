@@ -124,6 +124,28 @@ class DiaryImageProcessorTest extends TestCase
         $this->assertSame([], Storage::disk(Diary::IMAGE_DISK)->allFiles());
     }
 
+    public function test_applies_exif_orientation_to_variants_and_dimensions(): void
+    {
+        // 16x8 の横長 JPEG に Orientation=6 (時計回りに 90 度回す) の EXIF を付ける → 利用者が見る向きは 8x16 の縦長
+        $img = imagecreatetruecolor(16, 8);
+        ob_start();
+        imagejpeg($img, null, 90);
+        $jpeg = ob_get_clean();
+        $exif = "\xFF\xE1".pack('n', 34).'Exif'."\0\0".'II'.pack('v', 42).pack('V', 8).pack('v', 1).pack('vvVV', 0x0112, 3, 1, 6).pack('V', 0);
+        $withExif = substr($jpeg, 0, 2).$exif.substr($jpeg, 2);
+        $file = UploadedFile::fake()->createWithContent('rotated.jpg', $withExif);
+
+        $diary = Diary::factory()->make();
+        $diary->attachImage($file);
+        app(DiaryImageProcessor::class)->process($diary);
+
+        // 寸法は回転後 (縦長) で記録され、軽量版も縦長になる
+        $this->assertSame(8, $diary->image_width);
+        $this->assertSame(16, $diary->image_height);
+        $variant = imagecreatefromwebp(Storage::disk(Diary::IMAGE_DISK)->path(DiaryImageProcessor::variantPath($diary->image_path, 480, 'webp')));
+        $this->assertSame([8, 16], [imagesx($variant), imagesy($variant)]);
+    }
+
     public function test_store_generates_variants_and_list_uses_picture(): void
     {
         $this->actingAsOwner();

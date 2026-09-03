@@ -1,5 +1,6 @@
 {{-- 新規投稿と編集で共用する入力欄。$diary は編集時のみ渡される (新規は null) --}}
 @php($maxLength = \App\Models\Diary::CONTENT_MAX_LENGTH)
+@php($maxImageMb = intdiv(\App\Models\Diary::IMAGE_MAX_KB, 1024))
 
 <div>
     <label for="diary_date" class="field-label">日付</label>
@@ -27,7 +28,7 @@
 </div>
 
 <div>
-    <p class="field-label">画像 <span class="ml-1 text-xs font-normal text-on-surface-variant">任意・JPEG・5MB まで・1 枚</span></p>
+    <p class="field-label">画像 <span class="ml-1 text-xs font-normal text-on-surface-variant">任意・JPEG・{{ $maxImageMb }}MB まで・1 枚</span></p>
     @if ($diary?->hasImage())
         {{-- 編集時: 現在の画像。新しい画像を選ぶと差し替わり、チェックで削除できる --}}
         <div class="mb-3 flex items-center gap-4 rounded-lg border border-outline-variant p-3" data-current-image>
@@ -56,11 +57,11 @@
     </label>
     {{-- 選んだ画像のプレビュー (JS で表示。送信前に取り違えに気づけるように) --}}
     <div class="mt-3 flex items-start gap-4 rounded-lg border border-outline-variant bg-surface-low p-3" data-preview hidden>
-        <img class="h-24 w-32 shrink-0 rounded-md object-cover" src="" alt="選択した画像のプレビュー" data-preview-img>
+        <img class="h-24 w-32 shrink-0 rounded-md object-cover" alt="選択した画像のプレビュー" data-preview-img hidden>
         <div class="flex min-w-0 flex-1 flex-col gap-1.5 text-sm">
             <span class="font-medium" data-preview-title>{{ $diary?->hasImage() ? 'この画像に差し替えます' : 'この画像を添付します' }}</span>
             <span class="truncate text-[13px] text-on-surface-variant" data-preview-name></span>
-            <span class="text-[13px] text-error" data-preview-warning hidden></span>
+            <span class="text-[13px] text-error" role="status" data-preview-warning hidden></span>
             <button type="button" class="action-link self-start -ml-2.5" data-preview-clear>
                 <x-icon name="x" class="h-3.5 w-3.5"/>
                 選択を解除
@@ -103,17 +104,21 @@
         var currentNote = document.querySelector('[data-current-note]');
         var removeCheck = document.querySelector('[data-remove-image]');
         var objectUrl = null;
-        var maxBytes = 5 * 1024 * 1024;
+        // 「現在の画像」の説明文は Blade 側の初期値を控えておき、解除時に戻す (文言を 2 か所に持たない)
+        var originalNote = currentNote ? currentNote.textContent : '';
+        var formatSize = function (bytes) { return bytes < 1024 * 1024 ? Math.round(bytes / 1024) + ' KB' : (bytes / 1024 / 1024).toFixed(2) + ' MB'; };
+        var maxBytes = {{ \App\Models\Diary::IMAGE_MAX_KB }} * 1024;
 
         var reset = function () {
             if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
             img.removeAttribute('src');
+            img.hidden = true;
             preview.hidden = true;
             warning.hidden = true;
             if (name) name.textContent = 'ファイルは選ばれていません';
             // 編集画面: 「現在の画像」の表示を元に戻す
             if (current) { current.classList.remove('opacity-50'); }
-            if (currentNote) { currentNote.textContent = '現在の画像。下で新しい画像を選ぶと差し替わります。'; }
+            if (currentNote) { currentNote.textContent = originalNote; }
             if (removeCheck) { removeCheck.disabled = false; }
         };
 
@@ -122,15 +127,16 @@
             var selected = file.files && file.files[0];
             if (!selected) return;
             if (name) name.textContent = selected.name;
-            previewName.textContent = selected.name + '（' + (selected.size / 1024 / 1024).toFixed(2) + ' MB）';
+            previewName.textContent = selected.name + '（' + formatSize(selected.size) + '）';
             // その場で分かる範囲の注意 (最終的な検証はサーバー側)
             var problems = [];
             if (selected.type !== 'image/jpeg') problems.push('JPEG 形式のファイルを選んでください。');
-            if (selected.size > maxBytes) problems.push('5MB 以下のファイルを選んでください。');
+            if (selected.size > maxBytes) problems.push('{{ $maxImageMb }}MB 以下のファイルを選んでください。');
             if (problems.length) { warning.textContent = problems.join(' '); warning.hidden = false; }
             if (selected.type.indexOf('image/') === 0) {
                 objectUrl = URL.createObjectURL(selected);
                 img.src = objectUrl;
+                img.hidden = false;
             }
             preview.hidden = false;
             // 編集画面: 新しい画像を選んだら「現在の画像」は差し替え対象になり、削除チェックは意味を持たないので外す
