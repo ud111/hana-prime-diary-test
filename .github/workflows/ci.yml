@@ -59,8 +59,13 @@ jobs:
       - name: コード整形チェック (Pint)
         run: vendor/bin/pint --test
 
+      - name: .env を用意
+        # php artisan test (Collision) が .env を読むため、無いと各テストに警告が付く。CI 環境だけの一時ファイル
+        run: cp .env.example .env
+
       - name: テスト (PHPUnit)
         # phpunit.xml は compose 内のホスト名 db を指すので、CI ではサービスコンテナの 127.0.0.1 に向ける
+        # (.env の DB_HOST=db より環境変数が優先される)
         env:
           DB_HOST: 127.0.0.1
         run: php artisan test

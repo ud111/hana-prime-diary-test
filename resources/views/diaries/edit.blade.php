@@ -4,10 +4,7 @@
 
 @section('content')
     <div class="flex flex-col gap-1.5">
-        <a href="{{ route('diaries.show', $diary) }}" class="inline-flex items-center gap-1 self-start text-[13px] font-medium text-on-surface-variant hover:text-primary">
-            <x-icon name="arrow-left" class="h-3.5 w-3.5"/>
-            {{ $diary->diary_date->isoFormat('YYYY年M月D日') }}の日記へ戻る
-        </a>
+        <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記', 'url' => route('diaries.show', $diary)], ['label' => '編集']]"/>
         <div class="flex items-center justify-between gap-3">
             <h1 class="text-[22px] font-bold tracking-tight">日記を編集する</h1>
             @include('diaries._delete_form', ['diary' => $diary, 'label' => 'この日記を削除'])

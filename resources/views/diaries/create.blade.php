@@ -4,10 +4,7 @@
 
 @section('content')
     <div class="flex flex-col gap-1.5">
-        <a href="{{ route('diaries.index') }}" class="inline-flex items-center gap-1 self-start text-[13px] font-medium text-on-surface-variant hover:text-primary">
-            <x-icon name="arrow-left" class="h-3.5 w-3.5"/>
-            一覧へ戻る
-        </a>
+        <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => '新規投稿']]"/>
         <h1 class="text-[22px] font-bold tracking-tight">日記を書く</h1>
     </div>
 

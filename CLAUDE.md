@@ -14,6 +14,7 @@ Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。設計は `do
 
 - 主要な処理（コントローラのアクション、バリデーション、画像の保存と削除、クエリ）には、何をしているか・なぜかが分かる短い日本語コメントを付ける。自明な行には付けない。
 - 整形は Laravel Pint。PHP を編集するとフックが自動で整形する。push 前に `vendor/bin/pint --test` が通ること。
+- CSS は Tailwind の CLI ビルド。Blade か `resources/css/app.css` を変えたら、**commit の直前に** `docker compose --profile build run --rm node npm run build` を実行し、`git diff --stat public/css/app.css` で意図した差分だけであることを確認してから入力と出力を一緒に commit する（CI が再ビルドして一致を検査する）。`npm run watch` の出力は非圧縮なので、そのまま commit しない。
 - 仕様の判断は `docs/DESIGN.md` §5 に従う。本文は 100 文字・改行なし、画像は jpg 1 枚 5MB まで。
 
 ## テストと DB
@@ -21,6 +22,7 @@ Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。設計は `do
 - テストは必ずテスト用 DB `diary_test` で実行する。`tests/TestCase.php` のガードが `_test` 以外の接続先を拒否する。
 - 開発用 DB `diary` に対して fresh / reset / refresh / rollback / wipe 系の artisan コマンドは実行しない（フックが止める）。必要なら人が手で実行する。
 - DB 接続情報は `.env` だけに置く。`compose.yaml` の環境変数に `DB_*` を書くと phpunit.xml の設定より優先されてしまう。
+- CI では `.env.example` から `.env` を作ってテストする（`php artisan test` が `.env` を読むため）。ローカルの `.env` とは無関係。
 
 ## Laravel Boost（MCP）
 
