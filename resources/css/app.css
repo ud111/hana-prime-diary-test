@@ -69,11 +69,12 @@
         @apply inline-flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
     }
     /* 文字リンク風の小さな操作 (編集・削除) */
+    /* 通常時から薄い背景を持ち、ホバーで濃い背景 + 白文字にする */
     .action-link {
-        @apply inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
+        @apply inline-flex h-8 items-center gap-1 rounded-full bg-surface-low px-3 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-ink/20;
     }
     .action-link-danger {
-        @apply text-error hover:bg-error-container/50 hover:text-on-error-container;
+        @apply bg-error-container/60 text-on-error-container hover:bg-error hover:text-white;
     }
     /* 面 (カード)。影は使わず薄い線で区切る */
     .card {

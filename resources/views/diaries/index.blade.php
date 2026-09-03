@@ -4,9 +4,9 @@
 
 @section('content')
     {{-- ページの導入。統計や検索など仕様に無いものは置かない --}}
-    <section class="flex flex-col gap-1.5">
-        <h1 class="text-[22px] font-bold leading-snug tracking-tight sm:text-[26px]">日々の開発の小さな前進を、たった1行に。</h1>
-        <p class="text-sm text-on-surface-variant">コミットに残らない気づきや学びを、1日1行だけ書き留めます。</p>
+    <section class="flex flex-col gap-1.5 pt-4">
+        <h1 class="text-[22px] font-bold leading-snug tracking-tight sm:text-[26px]">日々の思ったことを1行の日記に</h1>
+        <p class="text-sm text-on-surface-variant">1日の気づきや学びを、1日1行だけ書き留めます。</p>
     </section>
 
     <section class="flex flex-col gap-3" aria-label="日記一覧">

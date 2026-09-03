@@ -2,7 +2,7 @@
     "private": true,
     "scripts": {
         "build": "tailwindcss -i resources/css/app.css -o public/css/app.css --minify",
-        "watch": "tailwindcss -i resources/css/app.css -o public/css/app.css --watch"
+        "watch": "tailwindcss -i resources/css/app.css -o public/css/app.css --watch=always"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.3.3",

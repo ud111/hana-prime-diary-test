@@ -14,7 +14,7 @@
     <header class="sticky top-0 z-50 border-b border-outline-variant bg-surface-lowest/95 backdrop-blur">
         <div class="mx-auto flex h-14 max-w-3xl items-center justify-between gap-4 px-4 sm:px-6">
             <a href="{{ route('diaries.index') }}" class="flex items-center gap-2.5 rounded-full text-on-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20">
-                <span class="text-[15px] font-bold tracking-tight">{{ config('app.name') }}</span>
+                <span class="text-[16px] font-bold tracking-wide text-gray-900">{{ config('app.name') }}</span>
             </a>
             <nav class="flex items-center gap-1.5" aria-label="メインメニュー">
                 {{-- 持ち主だけが投稿・ログアウトできる。未ログインならログインへ --}}
@@ -38,7 +38,7 @@
         </div>
     </header>
 
-    <main class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
+    <main class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-3 sm:px-6 sm:py-3">
         {{-- 投稿・更新・削除・ログインのメッセージ (session の status に入れる) --}}
         @if (session('status'))
             <div class="flex items-center gap-3 rounded-xl border border-success/20 bg-success-container/60 px-4 py-3 text-sm font-medium text-success" role="status">

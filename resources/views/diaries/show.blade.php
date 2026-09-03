@@ -21,16 +21,16 @@
         @endauth
     </div>
 
-    <article class="card flex flex-col gap-6 p-5 sm:p-8">
+    <article class="card flex flex-col gap-6 py-5 sm:py-8 sm:px-12">
         {{-- 日付は控えめに、本文を主役にする --}}
-        <header>
-            <h1 class="text-sm font-semibold text-on-surface-variant">
-                <time datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>
+        <header class="flex flex-col gap-2">
+            <h1 class="text-sm font-normal text-on-surface-variant">
+                <time class="text-gray-500" datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>
             </h1>
+            <div>
+                <p class="text-[24px] font-bold leading-relaxed sm:leading-normal tracking-wide break-all sm:text-[34px] text-gray-900">{{ $diary->content }}</p>
+            </div>
         </header>
-        <div>
-            <p class="text-[24px] font-bold leading-relaxed tracking-[0.03em] break-all sm:text-[30px]">{{ $diary->content }}</p>
-        </div>
         @if ($diary->hasImage())
             {{-- 画像が横幅に満たないときは、同じ画像を引き伸ばしてぼかした背景で余白を埋める --}}
             <figure class="relative overflow-hidden rounded-xl border border-outline-variant bg-surface-low">
@@ -42,7 +42,7 @@
         {{-- シェア (Stitch のデザイン)。外部スクリプトは読み込まず、各サービスの共有 URL とクリップボードだけで実装する --}}
         @php($shareUrl = route('diaries.show', $diary))
         @php($shareText = $diary->diary_date->isoFormat('YYYY年M月D日').'の日記 | '.config('app.name'))
-        <div class="flex flex-col items-center gap-3 border-t border-outline-variant pt-6">
+        <div class="flex flex-col items-center gap-3 border-t border-outline-variant/50 pt-6">
             <span class="text-xs tracking-wider text-outline">この日記をシェアする</span>
             <div class="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-lowest px-3 py-2 shadow-sm">
                 <a class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface" href="https://twitter.com/intent/tweet?{{ http_build_query(['text' => $shareText, 'url' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer" title="X でシェア" aria-label="X でシェア">
