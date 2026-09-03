@@ -3,7 +3,11 @@
 @if ($target)
     <a href="{{ route('diaries.show', $target) }}" class="card flex w-full min-w-0 items-center gap-3 overflow-hidden p-3 transition-colors hover:border-outline {{ $isOlder ? '' : 'flex-row-reverse text-right' }}">
         <x-icon name="{{ $isOlder ? 'chevron-left' : 'chevron-right' }}" class="h-4 w-4 shrink-0 text-on-surface-variant"/>
-        <img class="h-12 w-16 shrink-0 rounded-md border border-outline-variant bg-surface-low object-cover" width="64" height="48" src="{{ $target->hasImage() ? $target->image_url : asset('images/no-image.svg') }}" alt="" loading="lazy">
+        @if ($target->hasImage())
+            <x-diary-image :diary="$target" :width="480" class="h-12 w-16 shrink-0 rounded-md border border-outline-variant bg-surface-low object-cover" alt=""/>
+        @else
+            <img class="h-12 w-16 shrink-0 rounded-md border border-outline-variant bg-surface-low object-cover" width="64" height="48" src="{{ asset('images/no-image.svg') }}" alt="" loading="lazy">
+        @endif
         <span class="flex min-w-0 flex-1 flex-col gap-0.5 {{ $isOlder ? '' : 'items-end' }}">
             <span class="flex items-baseline gap-2 text-xs text-on-surface-variant {{ $isOlder ? '' : 'flex-row-reverse' }}">
                 <span>{{ $isOlder ? '前の日記' : '次の日記' }}</span>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DiaryImageProcessor;
 use Database\Factories\DiaryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +23,9 @@ use RuntimeException;
  * @property Carbon $diary_date
  * @property string $content
  * @property string|null $image_path
+ * @property int|null $image_width
+ * @property int|null $image_height
+ * @property list<string>|null $image_formats
  */
 #[Fillable(['diary_date', 'content', 'image_path'])]
 class Diary extends Model
@@ -54,6 +58,7 @@ class Diary extends Model
         return [
             // 日付だけを扱うので時刻を持たない date キャストにする
             'diary_date' => 'date',
+            'image_formats' => 'array',
         ];
     }
 
@@ -128,6 +133,10 @@ class Diary extends Model
             throw new RuntimeException('画像の保存に失敗しました。');
         }
         $this->image_path = $path;
+        // 軽量版は DiaryImageProcessor::process() で作る (寸法と形式もそこで入る)
+        $this->image_width = null;
+        $this->image_height = null;
+        $this->image_formats = null;
 
         return $this;
     }
@@ -138,17 +147,49 @@ class Diary extends Model
     public function detachImage(): static
     {
         $this->image_path = null;
+        $this->image_width = null;
+        $this->image_height = null;
+        $this->image_formats = null;
 
         return $this;
     }
 
     /**
-     * 画像ファイルを public ディスクから削除する。パスが null なら何もしない
+     * 画像ファイルと、その軽量版 (WebP / AVIF) を public ディスクから削除する。パスが null なら何もしない
      */
     public static function deleteImageFile(?string $path): void
     {
         if ($path !== null) {
-            Storage::disk(self::IMAGE_DISK)->delete($path);
+            Storage::disk(self::IMAGE_DISK)->delete([$path, ...DiaryImageProcessor::variantPaths($path)]);
         }
+    }
+
+    /**
+     * 軽量版 (WebP / AVIF) が生成済みか。導入前にアップロードした画像は false で、元の JPEG だけを出す
+     */
+    public function hasImageVariants(): bool
+    {
+        return $this->image_path !== null && $this->image_width !== null && ! empty($this->image_formats);
+    }
+
+    /**
+     * 軽量版の URL
+     */
+    public function imageVariantUrl(int $width, string $format): string
+    {
+        return Storage::disk(self::IMAGE_DISK)->url(DiaryImageProcessor::variantPath($this->image_path, $width, $format));
+    }
+
+    /**
+     * 幅 $width で表示したときの高さ (縦横比を保つ)。width / height 属性に使う
+     */
+    public function imageHeightFor(int $width): ?int
+    {
+        if (! $this->image_width || ! $this->image_height) {
+            return null;
+        }
+        $w = min($width, $this->image_width);
+
+        return (int) round($this->image_height * $w / $this->image_width);
     }
 }

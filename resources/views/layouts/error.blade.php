@@ -8,7 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title') | {{ config('app.name') }}</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    {{-- 長期キャッシュ (nginx) と両立させるため、CSS の更新時刻をクエリに付けて差し替え時に確実に取り直させる --}}
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : '' }}">
 </head>
 <body class="flex min-h-full flex-col bg-background font-sans text-[15px] leading-relaxed text-on-surface antialiased">
     <header class="border-b border-outline-variant bg-surface-lowest">

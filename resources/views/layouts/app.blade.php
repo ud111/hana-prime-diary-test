@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    {{-- 長期キャッシュ (nginx) と両立させるため、CSS の更新時刻をクエリに付けて差し替え時に確実に取り直させる --}}
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : '' }}">
 </head>
 <body class="flex min-h-full flex-col bg-background font-sans text-[15px] leading-relaxed text-on-surface antialiased">
     <header class="sticky top-0 z-50 border-b border-outline-variant bg-surface-lowest/95 backdrop-blur">

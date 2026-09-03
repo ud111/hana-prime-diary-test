@@ -90,6 +90,8 @@ hana-prime-diary-test/
 | diary_date | date | not null | 日記の日付（フォーム既定=今日、変更可） ※決定 |
 | content | varchar(255) | not null | 本文。アプリ側で **最大 100 文字**・改行禁止（「1行」） |
 | image_path | varchar(255) | nullable | `public` ディスク上の相対パス |
+| image_width / image_height | int unsigned | nullable | 元画像の寸法（#37。軽量版生成済みなら非 null） |
+| image_formats | json | nullable | 生成できた軽量版の形式（#37） |
 | created_at / updated_at | timestamp | | |
 
 #### ER 図
@@ -113,6 +115,9 @@ erDiagram
         date diary_date "日記の日付。index(diary_date, id) で一覧の並び順に対応"
         varchar content "本文。アプリ側で 100 文字・改行なしに制限"
         varchar image_path "nullable。public ディスク上の相対パス diaries/ULID.jpg"
+        int image_width "nullable。元画像の幅。軽量版生成済みなら非 null"
+        int image_height "nullable。元画像の高さ"
+        json image_formats "nullable。生成できた軽量版の形式"
         timestamp created_at
         timestamp updated_at
     }
@@ -155,7 +160,8 @@ erDiagram
 ### 5.4 画像保存
 
 - `storage/app/public/diaries/{ULID}.jpg` に保存し `php artisan storage:link` で `public/storage` から配信。
-- 一覧は固定比率のサムネイル（`object-cover`）で表示し、画像が無い日記はダミー画像で形をそろえる。サーバー側のリサイズ処理は行わない。
+- 一覧は固定比率のサムネイル（`object-cover`）で表示し、画像が無い日記はダミー画像で形をそろえる。
+- 保存時に GD で幅 480 / 1200 の WebP / AVIF を生成し（#37）、`<picture>` で軽い形式から配信する。元の JPEG は残し OGP に使う。EXIF の向きは生成時にピクセルへ焼き込む。縦横 6000px を超える画像はバリデーションで弾く（メモリ対策）。
 - 削除・差替時にファイルも消す（Model の `deleted` イベントで DB 削除の成功後に消す + update 時は DB 保存後に旧ファイルを削除）。
 
 ### 5.5 その他の判断

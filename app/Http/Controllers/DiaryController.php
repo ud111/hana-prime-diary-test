@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ImageProcessingException;
 use App\Http\Requests\StoreDiaryRequest;
 use App\Http\Requests\UpdateDiaryRequest;
 use App\Models\Diary;
+use App\Services\DiaryImageProcessor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class DiaryController extends Controller
 {
+    public function __construct(private readonly DiaryImageProcessor $images) {}
+
     /** 一覧の 1 ページあたりの件数 (課題仕様: 5 件ごと) */
     public const PER_PAGE = 5;
 
@@ -53,15 +57,20 @@ class DiaryController extends Controller
     {
         $diary = new Diary($request->safe()->only(['diary_date', 'content']));
 
-        // 画像は任意。あれば public ディスクに保存してからレコードを作る
-        if ($request->hasFile('image')) {
-            $diary->attachImage($request->file('image'));
-        }
-
+        // 画像は任意。あれば public ディスクに保存し、配信用の軽量版 (WebP / AVIF) を作ってからレコードを作る
         try {
+            if ($request->hasFile('image')) {
+                $diary->attachImage($request->file('image'));
+                $this->images->process($diary);
+            }
             $diary->save();
+        } catch (ImageProcessingException $e) {
+            // 読み込めない・大きすぎる画像は、置いたファイルを消して入力エラーとして返す
+            Diary::deleteImageFile($diary->image_path);
+
+            return back()->withInput()->withErrors(['image' => $e->getMessage()]);
         } catch (\Throwable $e) {
-            // 保存に失敗したら、先に置いた画像ファイルを残さない
+            // 保存に失敗したら、先に置いた画像ファイル (軽量版含む) を残さない
             Diary::deleteImageFile($diary->image_path);
             throw $e;
         }
@@ -85,15 +94,22 @@ class DiaryController extends Controller
         $oldPath = $diary->image_path;
         $diary->fill($request->safe()->only(['diary_date', 'content']));
 
-        if ($request->hasFile('image')) {
-            // 新しい画像を選んだときは差替。削除チェックが同時に付いていても新しい画像を優先する
-            $diary->attachImage($request->file('image'));
-        } elseif ($request->boolean('remove_image')) {
-            $diary->detachImage();
-        }
-
         try {
+            if ($request->hasFile('image')) {
+                // 新しい画像を選んだときは差替。削除チェックが同時に付いていても新しい画像を優先する
+                $diary->attachImage($request->file('image'));
+                $this->images->process($diary);
+            } elseif ($request->boolean('remove_image')) {
+                $diary->detachImage();
+            }
             $diary->save();
+        } catch (ImageProcessingException $e) {
+            // 読み込めない・大きすぎる画像は、新しく置いたファイルだけ消して入力エラーとして返す (元の画像は残る)
+            if ($diary->image_path !== $oldPath) {
+                Diary::deleteImageFile($diary->image_path);
+            }
+
+            return back()->withInput()->withErrors(['image' => $e->getMessage()]);
         } catch (\Throwable $e) {
             // 保存に失敗したら新しく置いたファイルだけ消し、元の画像は残す
             if ($diary->image_path !== $oldPath) {
