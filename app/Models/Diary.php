@@ -76,14 +76,12 @@ class Diary extends Model
     }
 
     /**
-     * アップロードされた画像を public ディスクに保存し、パスを持つ (save は呼び出し側で行う)。
-     * ファイル名は推測されにくいよう ULID にし、拡張子は検証済みの jpg に固定する
+     * アップロードされた画像を public ディスクに保存し、パスを差し替える (save は呼び出し側で行う)。
+     * ファイル名は推測されにくいよう ULID にし、拡張子は検証済みの jpg に固定する。
+     * 差替前のファイルはここでは消さない。DB の保存が成功してから deleteImageFile() で消す
      */
     public function attachImage(UploadedFile $file): static
     {
-        // 差替のときは古いファイルを先に消す
-        $this->removeImage();
-
         $path = $file->storeAs(self::IMAGE_DIR, Str::ulid().'.jpg', self::IMAGE_DISK);
         if ($path === false) {
             throw new RuntimeException('画像の保存に失敗しました。');
@@ -94,15 +92,22 @@ class Diary extends Model
     }
 
     /**
-     * 画像ファイルを削除してパスを空にする (save は呼び出し側で行う)
+     * 画像のパスを外す (save は呼び出し側で行う)。ファイルは DB 保存後に deleteImageFile() で消す
      */
-    public function removeImage(): static
+    public function detachImage(): static
     {
-        if ($this->image_path !== null) {
-            Storage::disk(self::IMAGE_DISK)->delete($this->image_path);
-            $this->image_path = null;
-        }
+        $this->image_path = null;
 
         return $this;
+    }
+
+    /**
+     * 画像ファイルを public ディスクから削除する。パスが null なら何もしない
+     */
+    public static function deleteImageFile(?string $path): void
+    {
+        if ($path !== null) {
+            Storage::disk(self::IMAGE_DISK)->delete($path);
+        }
     }
 }

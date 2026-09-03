@@ -85,6 +85,20 @@ class DiaryCreateTest extends TestCase
         $this->assertDatabaseCount('diaries', 0);
     }
 
+    public function test_accepts_image_of_exactly_5mb(): void
+    {
+        Storage::fake(Diary::IMAGE_DISK);
+        // 実 JPEG の末尾にパディングを足して 5120KB ちょうどにする (JPEG 判定は先頭のヘッダで行われる)
+        $path = tempnam(sys_get_temp_dir(), 'jpg');
+        $jpeg = file_get_contents(base_path('tests/fixtures/sample.jpg'));
+        file_put_contents($path, $jpeg.str_repeat("\0", 5120 * 1024 - strlen($jpeg)));
+        $exact = new UploadedFile($path, 'exact.jpg', 'image/jpeg', null, true);
+
+        $this->post(route('diaries.store'), $this->validData(['image' => $exact]))
+            ->assertSessionHasNoErrors();
+        $this->assertDatabaseCount('diaries', 1);
+    }
+
     public function test_rejects_empty_and_too_long_content(): void
     {
         $this->post(route('diaries.store'), $this->validData(['content' => '']))
