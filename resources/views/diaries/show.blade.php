@@ -3,6 +3,7 @@
 @section('title', $diary->diary_date->isoFormat('YYYY年M月D日').' の日記 | '.config('app.name'))
 
 @section('content')
+  <div class="flex flex-col gap-3">
     <div class="flex items-center justify-between gap-3">
         <a href="{{ route('diaries.index') }}" class="inline-flex items-center gap-1 text-[13px] font-medium text-on-surface-variant hover:text-primary">
             <x-icon name="arrow-left" class="h-3.5 w-3.5"/>
@@ -28,8 +29,7 @@
             </h1>
         </header>
         <div>
-            <p class="text-[24px] font-bold leading-relaxed tracking-tight break-all sm:text-[30px]">{{ $diary->content }}</p>
-            <p class="num mt-3 text-[13px] text-on-surface-variant">{{ mb_strlen($diary->content) }} 文字</p>
+            <p class="text-[24px] font-bold leading-relaxed tracking-[0.03em] break-all sm:text-[30px]">{{ $diary->content }}</p>
         </div>
         @if ($diary->hasImage())
             {{-- 画像が横幅に満たないときは、同じ画像を引き伸ばしてぼかした背景で余白を埋める --}}
@@ -62,6 +62,7 @@
             </div>
         </div>
     </article>
+  </div>
 
     {{-- 前後の日記への導線 (一覧と同じ並び。左が古い日記、右が新しい日記) --}}
     <nav class="grid gap-3 sm:grid-cols-2" aria-label="前後の日記">

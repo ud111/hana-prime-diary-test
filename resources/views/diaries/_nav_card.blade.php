@@ -5,8 +5,10 @@
         <x-icon name="{{ $isOlder ? 'chevron-left' : 'chevron-right' }}" class="h-4 w-4 shrink-0 text-on-surface-variant"/>
         <img class="h-12 w-16 shrink-0 rounded-md border border-outline-variant bg-surface-low object-cover" src="{{ $target->hasImage() ? $target->image_url : asset('images/no-image.svg') }}" alt="" loading="lazy">
         <span class="flex min-w-0 flex-1 flex-col gap-0.5 {{ $isOlder ? '' : 'items-end' }}">
-            <span class="text-xs text-on-surface-variant">{{ $isOlder ? '前の日記' : '次の日記' }}</span>
-            <span class="num text-[13px] font-semibold">{{ $target->diary_date->isoFormat('YYYY.MM.DD (ddd)') }}</span>
+            <span class="flex items-baseline gap-2 text-xs text-on-surface-variant {{ $isOlder ? '' : 'flex-row-reverse' }}">
+                <span>{{ $isOlder ? '前の日記' : '次の日記' }}</span>
+                <span class="num">{{ $target->diary_date->isoFormat('YYYY.MM.DD (ddd)') }}</span>
+            </span>
             <span class="block w-full truncate text-sm">{{ $target->content }}</span>
         </span>
     </a>

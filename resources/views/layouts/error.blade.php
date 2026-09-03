@@ -14,7 +14,6 @@
     <header class="border-b border-outline-variant bg-surface-lowest">
         <div class="mx-auto flex h-14 max-w-3xl items-center px-4 sm:px-6">
             <a href="{{ url('/') }}" class="flex items-center gap-2.5 text-on-surface">
-                <span class="num flex h-7 w-7 items-center justify-center rounded-md bg-primary text-sm font-bold text-on-primary">1</span>
                 <span class="text-[15px] font-bold tracking-tight">{{ config('app.name') }}</span>
             </a>
         </div>

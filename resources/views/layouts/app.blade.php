@@ -14,7 +14,6 @@
     <header class="sticky top-0 z-50 border-b border-outline-variant bg-surface-lowest/95 backdrop-blur">
         <div class="mx-auto flex h-14 max-w-3xl items-center justify-between gap-4 px-4 sm:px-6">
             <a href="{{ route('diaries.index') }}" class="flex items-center gap-2.5 rounded-full text-on-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20">
-                <span class="num flex h-7 w-7 items-center justify-center rounded-md bg-primary text-sm font-bold text-on-primary">1</span>
                 <span class="text-[15px] font-bold tracking-tight">{{ config('app.name') }}</span>
             </a>
             <nav class="flex items-center gap-1.5" aria-label="メインメニュー">
