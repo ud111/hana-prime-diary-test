@@ -85,7 +85,7 @@ docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS dia
 
 ## 5. MySQL 9.7 LTS で動かす場合
 
-課題の「最新リリース」を Innovation 系列の 26.7 と解釈して採用していますが、LTS 系列の 9.7 でも動作を確認しています（`docs/DESIGN.md` §2）。9.7 で動かす場合は `compose.yaml` の `db` の `image` を `mysql:9.7` に変えてください。
+課題の「最新リリース」を Innovation 系列の 26.7 と解釈して採用していますが、LTS 系列の 9.7 でも動作を確認しています（[DECISIONS.md](DECISIONS.md)）。9.7 で動かす場合は `compose.yaml` の `db` の `image` を `mysql:9.7` に変えてください。
 
 注意: 26.7 で作ったデータディレクトリは 9.7 では開けません。既にボリューム `hana_prime_diary_test_db_data` がある場合は、別名のボリュームに変えるか、データが不要であればボリュームを削除してから起動してください。
 
