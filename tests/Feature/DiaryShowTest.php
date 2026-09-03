@@ -17,7 +17,7 @@ class DiaryShowTest extends TestCase
 
         $this->get(route('diaries.show', $diary))
             ->assertOk()
-            ->assertSee('2026年9月3日(木)')
+            ->assertSee('2026年9月3日（木曜日）')
             ->assertSee('詳細ページの本文')
             ->assertSee('一覧へ戻る')
             ->assertDontSee(route('diaries.edit', $diary))
