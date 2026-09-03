@@ -1,8 +1,9 @@
 {{-- 一覧の 1 件分。日付・本文・画像 (あれば) を表示する --}}
 <li class="diary-item">
-    <time class="diary-date" datetime="{{ $diary->diary_date->toDateString() }}">
-        {{ $diary->diary_date->isoFormat('YYYY年M月D日(ddd)') }}
-    </time>
+    {{-- 日付が詳細ページへのリンク --}}
+    <a class="diary-date" href="{{ route('diaries.show', $diary) }}">
+        <time datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日(ddd)') }}</time>
+    </a>
     <p class="diary-content">{{ $diary->content }}</p>
     {{-- 編集・削除は持ち主だけ。未ログインには表示しない (URL 直打ちは auth ミドルウェアが止める) --}}
     @auth
