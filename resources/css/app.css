@@ -26,6 +26,9 @@
     --color-on-error-container: #93000a;
     --color-success: #1e7e4e;
     --color-success-container: #e8f5e9;
+    /* 主要ボタン・現在ページに使う濃いグレー (藍色はロゴと詳細の引用線だけに残す) */
+    --color-ink: #2d3133;
+    --color-ink-strong: #191c1e;
 }
 
 @layer base {
@@ -53,9 +56,9 @@
 }
 
 @layer components {
-    /* 主要ボタン。1 画面に 1 つだけ藍色にする */
+    /* 主要ボタン (新規投稿・投稿する・保存する・ログイン)。濃いグレーで 1 画面に 1 つ */
     .btn-primary {
-        @apply inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-container focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
+        @apply inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-ink-strong focus:outline-none focus-visible:ring-4 focus-visible:ring-ink/20;
     }
     /* 副次ボタン (キャンセル・戻る・ログイン導線) */
     .btn-secondary {

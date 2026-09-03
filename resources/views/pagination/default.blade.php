@@ -20,7 +20,7 @@
                 @else
                     @foreach ($element as $page => $url)
                         @if ($page == $paginator->currentPage())
-                            <span class="num flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[13px] font-medium text-on-primary shadow-sm" aria-current="page">{{ $page }}</span>
+                            <span class="num flex h-8 w-8 items-center justify-center rounded-full bg-ink text-[13px] font-medium text-white shadow-sm" aria-current="page">{{ $page }}</span>
                         @else
                             <a class="num flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-medium text-on-surface transition-colors hover:bg-surface-container" href="{{ $url }}">{{ $page }}</a>
                         @endif
