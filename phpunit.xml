@@ -5,9 +5,7 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
+        <!-- 純粋な単体テストはまだ無いので Feature のみ。tests/Unit を作ったらここに追加する -->
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
