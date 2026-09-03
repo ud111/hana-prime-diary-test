@@ -5,7 +5,9 @@
 @section('content')
     <div class="page-header">
         <h2>日記一覧</h2>
-        <a class="button" href="{{ route('diaries.create') }}">新規投稿</a>
+        @auth
+            <a class="button" href="{{ route('diaries.create') }}">新規投稿</a>
+        @endauth
     </div>
 
     {{-- 範囲外のページでも「日記がない」と誤解させないよう、総件数で判定する --}}

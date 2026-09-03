@@ -175,3 +175,19 @@ body {
     text-decoration: underline;
     cursor: pointer;
 }
+
+/* ヘッダーのナビゲーション (ログイン / ログアウト) */
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.site-nav form {
+    display: inline;
+}
+
+.link-button-plain {
+    color: #222;
+    text-decoration: none;
+}

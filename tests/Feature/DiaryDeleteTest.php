@@ -14,6 +14,7 @@ class DiaryDeleteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAsOwner();
         Storage::fake(Diary::IMAGE_DISK);
     }
 
@@ -23,7 +24,7 @@ class DiaryDeleteTest extends TestCase
 
         $this->get(route('diaries.index'))
             ->assertOk()
-            ->assertSee(route('diaries.destroy', $diary))
+            ->assertSee('name="_method" value="DELETE"', false)
             ->assertSee('この日記を削除します。よろしいですか？');
     }
 
