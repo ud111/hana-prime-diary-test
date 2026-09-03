@@ -61,7 +61,7 @@ docker compose exec app vendor/bin/pint --test  # コード整形チェック
 
 ## 仕様と判断したこと
 
-課題に記載の無い仕様は次のように決めました。理由と詳細は [docs/DESIGN.md](docs/DESIGN.md) にあります。
+課題に記載の無い仕様は次のように決めました。理由と詳細、テーブル構成の ER 図は [docs/DESIGN.md](docs/DESIGN.md) にあります。
 
 - 本文は 100 文字まで・改行なし。日付は入力でき、既定は今日
 - 画像は jpg のみ 1 枚、5MB まで。拡張子だけでなく実ファイルの MIME も検査し、ULID のファイル名で `storage/app/public/diaries/` に保存

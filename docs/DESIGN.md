@@ -91,6 +91,43 @@ hana-prime-diary-test/
 | image_path | varchar(255) | nullable | `public` ディスク上の相対パス |
 | created_at / updated_at | timestamp | | |
 
+#### ER 図
+
+アプリ固有のテーブルは `diaries` だけで、ログイン用に Laravel 標準の `users` と `sessions` を使う。持ち主 1 人の日記なので `diaries` は `user_id` を持たない（複数ユーザー化するときは `user_id` を追加して `users` に紐付ける）。
+
+```mermaid
+erDiagram
+    users {
+        bigint id PK
+        varchar name
+        varchar email UK
+        timestamp email_verified_at "nullable。未使用"
+        varchar password "bcrypt ハッシュ (hashed キャスト)"
+        varchar remember_token "nullable。未使用"
+        timestamp created_at
+        timestamp updated_at
+    }
+    diaries {
+        bigint id PK
+        date diary_date "日記の日付。index(diary_date, id) で一覧の並び順に対応"
+        varchar content "本文。アプリ側で 100 文字・改行なしに制限"
+        varchar image_path "nullable。public ディスク上の相対パス diaries/ULID.jpg"
+        timestamp created_at
+        timestamp updated_at
+    }
+    sessions {
+        varchar id PK
+        bigint user_id FK "nullable。未ログインのセッションは null"
+        varchar ip_address "nullable"
+        text user_agent "nullable"
+        longtext payload
+        int last_activity
+    }
+    users ||--o{ sessions : "ログイン中"
+```
+
+このほか Laravel 標準の `password_reset_tokens`、`cache` / `cache_locks`（CACHE_STORE=database）、`jobs` / `job_batches` / `failed_jobs`（QUEUE_CONNECTION=database）、`migrations` がある。いずれもアプリのコードからは直接使っていない。
+
 ### 5.2 画面・ルーティング（一覧は `/`、それ以外は `Route::resource('diaries', ...)`。`/diaries` は `/` へ 301）
 
 | メソッド | パス | 名前 | 画面/処理 |
