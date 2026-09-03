@@ -92,11 +92,11 @@ hana-prime-diary-test/
 | image_path | varchar(255) | nullable | `public` ディスク上の相対パス |
 | created_at / updated_at | timestamp | | |
 
-### 5.2 画面・ルーティング（`Route::resource('diaries', ...)->except(['show'])` + `/` → `/diaries` リダイレクト）
+### 5.2 画面・ルーティング（一覧は `/`、それ以外は `Route::resource('diaries', ...)`。`/diaries` は `/` へ 301）
 
 | メソッド | パス | 名前 | 画面/処理 |
 |---|---|---|---|
-| GET | /diaries | diaries.index | 一覧。新しい順（`diary_date` desc, `id` desc）。**5件ごと** `paginate(5)`。画像サムネイル表示。各行に「編集」「削除」 |
+| GET | / | diaries.index | 一覧（トップページ）。新しい順（`diary_date` desc, `id` desc）。**5件ごと** `paginate(5)`。画像サムネイル表示。各行に「編集」「削除」 |
 | GET | /diaries/create | diaries.create | 新規投稿フォーム（日付・本文・画像） |
 | POST | /diaries | diaries.store | 保存 → 一覧へ redirect + フラッシュ「投稿しました」 |
 | GET | /diaries/{diary}/edit | diaries.edit | 編集フォーム（現画像プレビュー、差替、「画像を削除」チェック） |
@@ -120,6 +120,7 @@ hana-prime-diary-test/
 
 - **認証なし**（課題にユーザーの概念が無いため単一利用者の日記として扱う）
 - 表示言語は日本語（`APP_LOCALE=ja`、`APP_TIMEZONE=Asia/Tokyo`）。
+- テーマは「開発者の 1 行日記」。サイト名は **ひとこと開発日誌**。データ構造と機能は課題どおりで、名前・例文・デザイン（#9）だけを開発者向けに寄せる（2026-09-03 決定）。
 - CSS は `public/css/app.css` 1 ファイル（Vite/Tailwind/Node 不使用。審査者の Node 環境を不要にする）。
 - ページネーションは Laravel 標準の `links()` を最小の自作ビュー（Tailwind 非依存）で描画。
 - テスト: Feature テスト（一覧5件区切り・投稿/編集/削除・画像アップロード `Storage::fake`・バリデーション）。DB は **compose 内 MySQL のテスト用 DB `diary_test`**（`phpunit.xml` で `DB_DATABASE=diary_test` を指定、`RefreshDatabase` 使用） ※決定。

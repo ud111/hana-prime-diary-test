@@ -11,7 +11,8 @@ docker compose exec -T app php artisan migrate --force              # 未適用�
 docker compose exec -T app vendor/bin/pint --test                   # 整形チェック
 docker compose exec -T app php artisan test                         # テスト。接続先は diary_test であること
 curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8081/up   # 200
-curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8081/diaries   # 200 (一覧実装前の #5 までは 404)
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8081/          # 200 (一覧)
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8081/diaries   # 301 (旧 URL → /)
 ```
 
 確認のポイント
