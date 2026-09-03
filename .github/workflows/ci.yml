@@ -1,0 +1,66 @@
+# PR と main への push ごとに、コード整形 (Pint) とテスト (PHPUnit) を実行する。
+# テストはローカルと同じ MySQL 26.7.0 をサービスコンテナで立て、diary_test に対して実行する。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Pint と PHPUnit (PHP 8.5 / MySQL 26.7.0)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mysql:
+        image: mysql:26.7.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: diary_test
+          MYSQL_USER: diary
+          MYSQL_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.5 をセットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: mbstring, pdo_mysql, xml, ctype, fileinfo, tokenizer
+          coverage: none
+          tools: composer:v2
+
+      - name: Composer キャッシュ
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: 依存パッケージをインストール
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: コード整形チェック (Pint)
+        run: vendor/bin/pint --test
+
+      - name: テスト (PHPUnit)
+        # phpunit.xml は compose 内のホスト名 db を指すので、CI ではサービスコンテナの 127.0.0.1 に向ける
+        env:
+          DB_HOST: 127.0.0.1
+        run: php artisan test
