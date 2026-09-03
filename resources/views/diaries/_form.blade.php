@@ -80,7 +80,10 @@
         if (input && count) {
             var update = function () { count.textContent = Array.from(input.value).length; };
             // 1 行日記なので改行は入れない。Enter は無効にし、貼り付けで入った改行は取り除く
-            input.addEventListener('keydown', function (e) { if (e.key === 'Enter') e.preventDefault(); });
+            // 日本語入力の変換確定 (isComposing / keyCode 229) の Enter は通す
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) e.preventDefault();
+            });
             input.addEventListener('input', function () {
                 if (/[\r\n]/.test(input.value)) input.value = input.value.replace(/[\r\n]+/g, ' ');
                 update();
