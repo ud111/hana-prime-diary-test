@@ -8,7 +8,9 @@ Laravel で作った 1 行日記サイトです。開発者が 1 日 1 行だけ
 - 新規投稿（日付・本文・jpg 画像 1 枚）
 - 編集（画像の差替・削除）
 - 削除（確認ダイアログ付き。画像ファイルも削除）
+- 詳細ページ（大きな画像、シェア、前後の日記への導線）
 - ログイン（一覧は公開、投稿・編集・削除は持ち主のみ）
+- 投稿・編集画面での画像プレビュー、日本語のエラーページ（404 / 419 / 429 / 500）
 
 ## 動作環境
 
@@ -53,7 +55,7 @@ docker compose exec app php artisan tinker --execute \
 ## テスト
 
 ```bash
-docker compose exec app php artisan test        # 46 件
+docker compose exec app php artisan test        # 79 件
 docker compose exec app vendor/bin/pint --test  # コード整形チェック
 ```
 
@@ -68,7 +70,7 @@ docker compose exec app vendor/bin/pint --test  # コード整形チェック
 - 一覧は日付の新しい順（同じ日付は後から登録した順）。トップページ `/` が一覧
 - 削除・差替時は DB の保存が成功してから画像ファイルを消し、途中で失敗しても画像を失わない
 - 第三者が勝手に変更できないよう、書き込みはログイン必須。ユーザー登録画面は作らず、持ち主 1 人をシーダーで作成
-- HTML と CSS は最低限。デザインは別途反映予定
+- デザインは Google Stitch で作った 5 画面を基に、Tailwind CSS 4（CLI ビルド、出力 CSS をコミット）で実装。課題に無いタグ・検索・統計などは置かず、詳細ページのシェアと前後導線は採用
 
 ## SEO と共有
 
@@ -89,9 +91,10 @@ docker compose exec app vendor/bin/pint --test  # コード整形チェック
 
 - Issue ごとにブランチを切り、PR を作って Squash マージしています。CI（Pint と PHPUnit）が PR ごとに動きます
 - 設計計画書 [docs/DESIGN.md](docs/DESIGN.md) を最初に書き、そこから Issue を起票しました
+- CSS は Tailwind CSS の CLI でビルドし、出力もコミットしています（審査者は Node 不要。CI が再ビルドして一致を検査）
 
 ## AI ツールの利用について
 
 - **AI ツールの使用有無**: あり
-- **使用したAIツールの名称**: Claude Code（Anthropic）、Laravel Boost（Laravel 公式の MCP サーバー。ドキュメント検索と DB スキーマ参照に使用）
-- **どのように利用したか（使用範囲）**: 設計計画書の作成、Docker 環境の構築、コードとテストの実装、PR のレビュー下書きの作成、ドキュメント作成に Claude Code を対話的に使いました。仕様の判断、Issue の起票、PR の作成とレビュー指摘の採否、マージ、動作確認は本人が行っています。Claude Code の設定（規約、フック、スキル）はリポジトリの `CLAUDE.md` と `.claude/` に置いています。
+- **使用したAIツールの名称**: Claude Code（Anthropic）、Laravel Boost（Laravel 公式の MCP サーバー。ドキュメント検索と DB スキーマ参照に使用）、Google Stitch（画面デザインの作成。MCP 経由で Claude Code から取得）
+- **どのように利用したか（使用範囲）**: 設計計画書の作成、Docker 環境の構築、コードとテストの実装、PR のレビュー下書きの作成（読み取り専用のサブエージェントで差分を検証）、ドキュメント作成に Claude Code を対話的に使いました。デザインは Google Stitch で作成し、細部は本人が調整しました。仕様の判断、Issue の起票、PR の作成とレビュー指摘の採否、マージ、動作確認は本人が行っています。Claude Code の設定（規約、フック、スキル）はリポジトリの `CLAUDE.md` と `.claude/` に置いています。

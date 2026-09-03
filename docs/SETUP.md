@@ -67,6 +67,9 @@ docker compose up -d --build
 
 このあとの手順は同じです（`composer run setup` は `.env` が既にあればコピーを飛ばします）。macOS / Windows の Docker Desktop はファイル所有権を吸収するので、この設定は不要です。
 
+**ポートを変えたとき**
+`compose.yaml` の公開ポート（8081）を変えた場合は、`.env` の `APP_URL` も同じポートに合わせてください。リダイレクト先や canonical / OGP / sitemap の絶対 URL は `APP_URL` から作られます。
+
 **画像が表示されない**
 `public/storage` のシンボリックリンクが無い状態です。`docker compose exec app php artisan storage:link` を実行してください。
 
