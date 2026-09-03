@@ -2,7 +2,7 @@
 <article class="card flex flex-col gap-4 p-5 transition-shadow hover:shadow-md hover:shadow-black/5 sm:flex-row sm:gap-6 sm:p-6">
     {{-- 画像は左。無い場合はダミー画像を出してカードの形を揃える --}}
     <a href="{{ route('diaries.show', $diary) }}" class="block shrink-0 overflow-hidden rounded-xl sm:rounded-lg border border-outline-variant bg-surface-low sm:w-40 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20" aria-label="{{ $diary->diary_date->isoFormat('YYYY年M月D日') }} の日記を見る">
-        <img class="aspect-video sm:aspect-square h-auto min-h-full w-full object-cover" src="{{ $diary->hasImage() ? $diary->image_url : asset('images/no-image.svg') }}" alt="{{ $diary->hasImage() ? $diary->diary_date->toDateString().' の写真' : '' }}" loading="lazy">
+        <img class="aspect-video sm:aspect-square h-auto min-h-full w-full object-cover" width="400" height="300" src="{{ $diary->hasImage() ? $diary->image_url : asset('images/no-image.svg') }}" alt="{{ $diary->hasImage() ? $diary->diary_date->toDateString().' の写真' : '' }}" loading="lazy">
     </a>
     <div class="flex min-w-0 flex-1 flex-col gap-1 sm:gap-3">
         {{-- 日付が詳細ページへのリンク --}}

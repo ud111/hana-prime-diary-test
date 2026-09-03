@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DiaryController;
+use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
 
 // 一覧はトップページ (/) で表示する。誰でも閲覧できる
@@ -22,6 +23,10 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 Route::resource('diaries', DiaryController::class)
     ->except(['index', 'show'])
     ->middleware('auth');
+
+// 検索エンジン向け
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 
 // 詳細 (show) は一覧と同じく誰でも閲覧できる。
 // /diaries/create が {diary} に捕まらないよう、リソースルートより後に定義する

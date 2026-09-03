@@ -2,6 +2,42 @@
 
 @section('title', $diary->diary_date->isoFormat('YYYY年M月D日').' の日記 | '.config('app.name'))
 
+@php($pageTitle = $diary->diary_date->isoFormat('YYYY年M月D日').' の日記 | '.config('app.name'))
+@php($ogImage = $diary->hasImage() ? $diary->image_url : asset('images/ogp.png'))
+@push('head')
+    <x-seo
+        :title="$pageTitle"
+        :description="$diary->content"
+        :url="route('diaries.show', $diary)"
+        :image="$ogImage"
+        type="article"
+        :json-ld="[
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'BlogPosting',
+                'headline' => $diary->content,
+                'datePublished' => $diary->diary_date->toDateString(),
+                'dateModified' => $diary->updated_at->toAtomString(),
+                'image' => [$ogImage],
+                'inLanguage' => 'ja',
+                'mainEntityOfPage' => route('diaries.show', $diary),
+                'author' => ['@type' => 'Person', 'name' => config('app.name').'の持ち主'],
+                'publisher' => ['@type' => 'Organization', 'name' => config('app.name')],
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'BreadcrumbList',
+                'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => '日誌一覧', 'item' => route('diaries.index')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記', 'item' => route('diaries.show', $diary)],
+                ],
+            ],
+        ]"
+    />
+    <meta property="article:published_time" content="{{ $diary->diary_date->toDateString() }}">
+    <meta property="article:modified_time" content="{{ $diary->updated_at->toAtomString() }}">
+@endpush
+
 @section('content')
   <div class="flex flex-col gap-3">
     <div class="flex items-center justify-between gap-3">
@@ -19,8 +55,7 @@
     </div>
 
     <article class="card flex flex-col gap-6 p-5 sm:py-8 sm:px-12">
-        {{-- 日付は控えめに、本文を主役にする --}}
-        {{-- h1 はページの主題である本文。日付は副題として time で示す --}}
+        {{-- h1 はページの主題である本文。日付は控えめな副題として time で示す --}}
         <header class="flex flex-col gap-2">
             <p class="text-sm text-on-surface-variant">
                 <time datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>

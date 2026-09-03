@@ -2,6 +2,10 @@
 
 @section('title', '新規投稿 | '.config('app.name'))
 
+@push('head')
+    <x-seo :title="'新規投稿 | '.config('app.name')" description="日記の新規投稿" :noindex="true"/>
+@endpush
+
 @section('content')
     <div class="flex flex-col gap-1.5">
         <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => '新規投稿']]"/>

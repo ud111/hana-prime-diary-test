@@ -2,6 +2,10 @@
 
 @section('title', 'ログイン | '.config('app.name'))
 
+@push('head')
+    <x-seo :title="'ログイン | '.config('app.name')" description="持ち主のログインページ" :noindex="true"/>
+@endpush
+
 @section('content')
     <section class="card m-auto mt-4 flex w-full max-w-sm flex-col gap-6 p-6 sm:p-8">
         <div class="flex flex-col items-center gap-3 text-center">
