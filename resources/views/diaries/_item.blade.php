@@ -7,10 +7,10 @@
     <div class="flex min-w-0 flex-1 flex-col gap-1 sm:gap-3">
         {{-- 日付が詳細ページへのリンク --}}
         <a href="{{ route('diaries.show', $diary) }}" class="inline-flex items-baseline gap-2 self-start rounded text-on-surface-variant hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20">
-            <time datetime="{{ $diary->diary_date->toDateString() }}" class="num text-[13px] font-semibold text-gray-500">{{ $diary->diary_date->isoFormat('YYYY.MM.DD') }}</time>
+            <time datetime="{{ $diary->diary_date->toDateString() }}" class="num text-[13px] font-semibold text-on-surface-variant">{{ $diary->diary_date->isoFormat('YYYY.MM.DD') }}</time>
             <span class="text-xs">{{ $diary->diary_date->isoFormat('ddd') }}曜日</span>
         </a>
-        <p class="text-[20px] sm:text-[24px] font-bold text-gray-600 tracking-wide sm:tracking-wider leading-normal sm:leading-normal text-on-surface break-all">{{ $diary->content }}</p>
+        <p class="text-[20px] sm:text-[24px] font-bold tracking-wide sm:tracking-wider leading-normal sm:leading-normal text-on-surface break-all">{{ $diary->content }}</p>
         {{-- 編集・削除は持ち主だけ。未ログインには表示しない (URL 直打ちは auth ミドルウェアが止める) --}}
         @auth
             <div class="mt-auto flex items-center gap-1 pt-1 -ml-2.5">

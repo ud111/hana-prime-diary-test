@@ -82,8 +82,8 @@ class Diary extends Model
     {
         return static::query()
             ->where(function (Builder $q) {
-                $q->whereDate('diary_date', '<', $this->diary_date)
-                    ->orWhere(fn (Builder $q2) => $q2->whereDate('diary_date', $this->diary_date)->where('id', '<', $this->id));
+                $q->where('diary_date', '<', $this->diary_date->toDateString())
+                    ->orWhere(fn (Builder $q2) => $q2->where('diary_date', $this->diary_date->toDateString())->where('id', '<', $this->id));
             })
             ->latestFirst()
             ->first();
@@ -96,8 +96,8 @@ class Diary extends Model
     {
         return static::query()
             ->where(function (Builder $q) {
-                $q->whereDate('diary_date', '>', $this->diary_date)
-                    ->orWhere(fn (Builder $q2) => $q2->whereDate('diary_date', $this->diary_date)->where('id', '>', $this->id));
+                $q->where('diary_date', '>', $this->diary_date->toDateString())
+                    ->orWhere(fn (Builder $q2) => $q2->where('diary_date', $this->diary_date->toDateString())->where('id', '>', $this->id));
             })
             ->orderBy('diary_date')->orderBy('id')
             ->first();

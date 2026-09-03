@@ -1,6 +1,6 @@
 # 1行日記サイト 設計計画書
 
-作成日: 2026-09-03 / 状態: **機能実装完了（#1〜#8、#15、#21、#22）。#9 デザイン適用はデザイン待ち。手順書は `docs/SETUP.md`、提出情報は `README.md`**
+作成日: 2026-09-03 / 状態: **機能実装・デザイン適用まで完了（#1〜#10、#15、#21、#22、#26〜#28、#32、#9）。手順書は `docs/SETUP.md`、提出情報は `README.md`**
 
 ## 1. 課題要件（原文の要約）
 
@@ -155,7 +155,7 @@ erDiagram
 ### 5.4 画像保存
 
 - `storage/app/public/diaries/{ULID}.jpg` に保存し `php artisan storage:link` で `public/storage` から配信。
-- 一覧は CSS で `max-width` を指定したサムネイル表示（リサイズ処理は行わない = 「最低限」の範囲）。
+- 一覧は固定比率のサムネイル（`object-cover`）で表示し、画像が無い日記はダミー画像で形をそろえる。サーバー側のリサイズ処理は行わない。
 - 削除・差替時にファイルも消す（Model の `deleted` イベントで DB 削除の成功後に消す + update 時は DB 保存後に旧ファイルを削除）。
 
 ### 5.5 その他の判断
@@ -164,7 +164,8 @@ erDiagram
 - 表示言語は日本語（`APP_LOCALE=ja`、`APP_TIMEZONE=Asia/Tokyo`）。
 - テーマは「開発者の 1 行日記」。サイト名は **ひとこと開発日誌**。データ構造と機能は課題どおりで、名前・例文・デザイン（#9）だけを開発者向けに寄せる（2026-09-03 決定）。
 - CSS は Tailwind CSS 4 を CLI でビルド（入力 `resources/css/app.css`、出力 `public/css/app.css` をコミット。審査者の Node 環境は不要）。デザインは Google Stitch で作成した 5 画面を基に、色トークンを `@theme` で定義して適用（#9）。仕様に無い要素のうち、シェア（X / Facebook / LINE / リンクのコピー）と前後の日記への導線は詳細ページに採用し、タグ・検索・月フィルタ・統計・状態バッジは置かない。画像が無い日記はダミー画像で形をそろえる。アイコンは使う分だけのインライン SVG。
-- ページネーションは Laravel 標準の `links()` を最小の自作ビュー（Tailwind 非依存）で描画。
+- ページネーションは Laravel 標準の `links()` を自作ビュー `pagination/default.blade.php`（Tailwind のクラスで描画、表示件数の案内付き）で描画。
+- フォントは Google Fonts の Inter と Noto Sans JP を読み込み、読み込めない環境では system-ui にフォールバックする。アイコンはインライン SVG で外部スクリプトは使わない。
 - テスト: Feature テスト（一覧5件区切り・投稿/編集/削除・画像アップロード `Storage::fake`・バリデーション）。DB は **compose 内 MySQL のテスト用 DB `diary_test`**（`phpunit.xml` で `DB_DATABASE=diary_test` を指定、`RefreshDatabase` 使用） ※決定。
 - コード整形は Laravel Pint（同梱）。
 - シーダー: `DatabaseSeeder` が持ち主ユーザー 1 人（`UserSeeder`、ログインに必要）と日記 12 件（`DiarySeeder`、ページネーション確認用）を投入する。

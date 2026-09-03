@@ -15,6 +15,6 @@
 @else
     <span class="card flex w-full min-w-0 items-center gap-3 p-3 text-on-surface-variant {{ $isOlder ? '' : 'flex-row-reverse text-right' }}" aria-disabled="true">
         <x-icon name="{{ $isOlder ? 'chevron-left' : 'chevron-right' }}" class="h-4 w-4 shrink-0"/>
-        <span class="text-sm text-gray-400">{{ $isOlder ? 'これより前の日記はありません' : 'これより新しい日記はありません' }}</span>
+        <span class="text-sm text-on-surface-variant">{{ $isOlder ? 'これより前の日記はありません' : 'これより新しい日記はありません' }}</span>
     </span>
 @endif
