@@ -1,228 +1,100 @@
 /*
  * このファイルが CSS の入力。npm run build で public/css/app.css に出力する (出力はコミットする)。
- * Tailwind はテーマとユーティリティだけ読み込み、preflight (リセット CSS) は #9 のデザイン適用で入れる。
- * それまでは既存の見た目を保つため、以下の自前スタイルをそのまま持っている。
+ * 色は Stitch のデザイン (One-Line Diary App) を基にした白基調の Material トークン。
+ * 面は白と淡いグレーの 2 段、境界は薄い 1px 線。主要ボタンと現在ページは濃いグレー (ink)、
+ * 藍色 (primary) はフォーカスリング・入力のフォーカス枠・リンクの hover 色など、状態を示す差し色にだけ使う。
+ * 文字色は on-surface (本文) と on-surface-variant (補助) の 2 段で、素の gray-* は使わない。
  */
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss";
 
 @theme {
-    --font-sans: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-sans: "Noto Sans JP", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-num: "Inter", "Noto Sans JP", system-ui, sans-serif;
+
+    --color-primary: #3525cd;
+    --color-primary-fixed: #e2dfff;
+    --color-background: #f7f9fb;
+    --color-surface-lowest: #ffffff;
+    --color-surface-low: #f3f4f7;
+    --color-surface-container: #eceef0;
+    --color-on-surface: #191c1e;
+    --color-on-surface-variant: #5b5a6b;
+    --color-outline: #8c8a9c;
+    --color-outline-variant: #e3e2ec;
+    --color-error: #ba1a1a;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+    --color-success: #1e7e4e;
+    --color-success-container: #e8f5e9;
+    /* 主要ボタン・現在ページに使う濃いグレー */
+    --color-ink: #2d3133;
+    --color-ink-strong: #191c1e;
 }
 
-/* ---- 最低限のスタイル (デザイン適用は Issue #9) ---- */
-body {
-    font-family: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;
-    margin: 0;
-    color: #222;
-    background: #fff;
-    line-height: 1.6;
+@layer base {
+    html {
+        color-scheme: light;
+    }
+    body {
+        font-feature-settings: "palt";
+        letter-spacing: 0.01em;
+    }
+    /* クリックできる要素はカーソルをポインターにする (Tailwind 4 の preflight は button を default にするため) */
+    a[href],
+    button:not(:disabled),
+    label[for],
+    input[type="checkbox"],
+    input[type="file"],
+    summary {
+        cursor: pointer;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            transition: none !important;
+        }
+    }
 }
 
-.site-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #ddd;
-}
-
-.site-title {
-    margin: 0;
-    font-size: 1.25rem;
-}
-
-.site-title a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.container {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 1rem;
-}
-
-.page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.page-header h2 {
-    margin: 0.5rem 0;
-    font-size: 1.1rem;
-}
-
-.flash {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #9c9;
-    background: #efe;
-}
-
-.empty {
-    color: #666;
-}
-
-.diary-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.diary-item {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #eee;
-}
-
-.diary-date {
-    font-size: 0.85rem;
-    color: #666;
-}
-
-.diary-content {
-    margin: 0.25rem 0;
-    word-break: break-all;
-}
-
-.diary-image {
-    display: block;
-    max-width: 240px;
-    max-height: 240px;
-    height: auto;
-    margin-top: 0.5rem;
-}
-
-.pagination {
-    display: flex;
-    gap: 0.25rem;
-    margin-top: 1rem;
-}
-
-.page-link {
-    padding: 0.25rem 0.6rem;
-    border: 1px solid #ccc;
-    color: #222;
-    text-decoration: none;
-}
-
-.page-link.is-current {
-    background: #222;
-    color: #fff;
-    border-color: #222;
-}
-
-.page-link.is-disabled {
-    color: #aaa;
-}
-
-/* フォーム */
-.button {
-    display: inline-block;
-    padding: 0.35rem 0.9rem;
-    border: 1px solid #222;
-    background: #222;
-    color: #fff;
-    font: inherit;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.diary-form {
-    max-width: 480px;
-}
-
-.field {
-    margin-bottom: 1rem;
-}
-
-.field label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
-}
-
-.field input[type="date"],
-.field input[type="text"] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.4rem;
-    font: inherit;
-    border: 1px solid #bbb;
-}
-
-.error {
-    margin: 0.25rem 0 0;
-    color: #b00020;
-    font-size: 0.85rem;
-}
-
-/* 一覧の操作リンクと編集フォームの画像欄 */
-.diary-actions {
-    display: flex;
-    gap: 0.75rem;
-    font-size: 0.85rem;
-}
-
-.field-label {
-    margin: 0 0 0.25rem;
-    font-size: 0.9rem;
-}
-
-.checkbox {
-    display: block;
-    margin: 0.5rem 0 0.75rem;
-    font-size: 0.9rem;
-}
-
-/* リンク風の送信ボタン (削除) */
-.diary-actions form {
-    display: inline;
-}
-
-.link-button {
-    padding: 0;
-    border: 0;
-    background: none;
-    font: inherit;
-    color: #b00020;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-/* ヘッダーのナビゲーション (ログイン / ログアウト) */
-.site-nav form {
-    display: inline;
-}
-
-.link-button-plain {
-    color: #222;
-    text-decoration: none;
-}
-
-/* エラーページ (layouts/error) */
-.error-page {
-    text-align: center;
-    padding-top: 3rem;
-}
-
-.error-code {
-    margin: 0;
-    font-size: 3rem;
-    font-weight: 700;
-    color: #999;
-}
-
-/* 詳細ページ */
-.diary-detail h2 {
-    margin: 0.5rem 0;
-    font-size: 1.1rem;
-}
-
-.diary-image-large {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    margin-top: 0.75rem;
+@layer components {
+    /* 主要ボタン (新規投稿・投稿する・保存する・ログイン)。濃いグレーで 1 画面に 1 つ */
+    .btn-primary {
+        @apply inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-ink-strong focus:outline-none focus-visible:ring-4 focus-visible:ring-ink/20;
+    }
+    /* 副次ボタン (キャンセル・戻る・ログイン導線) */
+    .btn-secondary {
+        @apply inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-outline-variant bg-surface-lowest px-4 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-low focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
+    }
+    /* アイコンだけの丸ボタン */
+    .btn-icon {
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20;
+    }
+    /* 文字リンク風の小さな操作 (編集・削除) */
+    /* 通常時から薄い背景を持ち、ホバーで濃い背景 + 白文字にする */
+    .action-link {
+        @apply inline-flex h-8 items-center gap-1 rounded-full bg-surface-low px-3 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-ink/20;
+    }
+    .action-link-danger {
+        @apply bg-error-container/60 text-on-error-container hover:bg-error hover:text-white;
+    }
+    /* 面 (カード)。影は使わず薄い線で区切る */
+    .card {
+        @apply rounded-2xl border border-outline-variant bg-surface-lowest;
+    }
+    /* フォーム */
+    .field-label {
+        @apply mb-2 block text-sm font-semibold text-on-surface;
+    }
+    .field-input {
+        @apply h-11 w-full rounded-lg border border-outline-variant bg-surface-lowest px-3.5 text-[15px] text-on-surface transition-colors placeholder:text-on-surface-variant hover:border-outline focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15;
+    }
+    .field-hint {
+        @apply mt-2 text-[13px] text-on-surface-variant;
+    }
+    .field-error {
+        @apply mt-2 text-[13px] font-medium text-error;
+    }
+    /* 日付などの数字は Inter で揃える */
+    .num {
+        @apply font-num tabular-nums;
+    }
 }

@@ -76,6 +76,34 @@ class Diary extends Model
     }
 
     /**
+     * 一覧の並び (日付の新しい順) で 1 つ前 = より古い日記。無ければ null
+     */
+    public function older(): ?Diary
+    {
+        return static::query()
+            ->where(function (Builder $q) {
+                $q->where('diary_date', '<', $this->diary_date->toDateString())
+                    ->orWhere(fn (Builder $q2) => $q2->where('diary_date', $this->diary_date->toDateString())->where('id', '<', $this->id));
+            })
+            ->latestFirst()
+            ->first();
+    }
+
+    /**
+     * 一覧の並びで 1 つ後 = より新しい日記。無ければ null
+     */
+    public function newer(): ?Diary
+    {
+        return static::query()
+            ->where(function (Builder $q) {
+                $q->where('diary_date', '>', $this->diary_date->toDateString())
+                    ->orWhere(fn (Builder $q2) => $q2->where('diary_date', $this->diary_date->toDateString())->where('id', '>', $this->id));
+            })
+            ->orderBy('diary_date')->orderBy('id')
+            ->first();
+    }
+
+    /**
      * 画像が添付されているか
      */
     public function hasImage(): bool

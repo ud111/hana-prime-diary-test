@@ -31,7 +31,11 @@ class DiaryController extends Controller
      */
     public function show(Diary $diary): View
     {
-        return view('diaries.show', compact('diary'));
+        // 前後の日記 (一覧と同じ並び) への導線
+        $older = $diary->older();
+        $newer = $diary->newer();
+
+        return view('diaries.show', compact('diary', 'older', 'newer'));
     }
 
     /**
