@@ -1,6 +1,6 @@
 # 1行日記サイト 設計計画書
 
-作成日: 2026-09-03 / 状態: **環境構築済・初回コミット済・GitHub 作成済（Issue 単位で開発中）**
+作成日: 2026-09-03 / 状態: **機能実装完了（#1〜#8、#15、#21、#22）。#9 デザイン適用はデザイン待ち。手順書は `docs/SETUP.md`、提出情報は `README.md`**
 
 ## 1. 課題要件（原文の要約）
 
@@ -16,7 +16,7 @@
 | 対象 | 採用 | 根拠 |
 |---|---|---|
 | PHP | **8.5.10**（`php:8.5.10-fpm-alpine`） | Docker Hub 公式イメージの最新安定版。8.4 系は 8.4.25 |
-| MySQL | **26.7.0（Innovation、`mysql:26.7.0` にパッチまで固定）** ※決定 | Docker Hub `mysql:latest` = `innovation` = 26.7.0（8/18 に 26.7.1 リリース済）。`mysql:lts` = 9.7.2。MySQL 公式マニュアル「Innovation 系列 = 26.7、LTS 系列 = 9.7」 |
+| MySQL | **26.7.0（Innovation、`mysql:26.7.0` にパッチまで固定）** ※決定。LTS 系列 9.7.2 でも migrate・seed・テスト 46 件が通ることを確認（2026-09-03、使い捨てコンテナで実施） | Docker Hub `mysql:latest` = `innovation` = 26.7.0（8/18 に 26.7.1 リリース済）。`mysql:lts` = 9.7.2。MySQL 公式マニュアル「Innovation 系列 = 26.7、LTS 系列 = 9.7」 |
 | Laravel | **13.x**（framework v13.30.1、skeleton v13.10.1、2026-09-01 時点） | PHP `^8.3` 要件。公式 CI は PHP 8.3/8.4/8.5 × `mysql:9.7` でテスト |
 | Composer | 2 系（`composer:2` イメージから同梱） | |
 | Web サーバ | nginx（`nginx:1-alpine`） | php-fpm と分離する一般的構成 |
@@ -40,7 +40,8 @@ hana-prime-diary-test/
 │   ├── php/Dockerfile          # php:8.5.10-fpm-alpine + pdo_mysql + composer、UID/GID 引数
 │   ├── php/php.ini             # upload_max_filesize 10M / post_max_size 12M
 │   └── nginx/default.conf      # root public/, client_max_body_size 12m
-├── docs/DESIGN.md              # 本書（リポに含めるかは要ヒアリング）
+├── docs/DESIGN.md              # 本書（設計計画・仕様判断・開発フロー）
+├── docs/SETUP.md               # 環境構築手順（#10）
 ├── README.md                   # セットアップ手順・仕様・AI 利用申告
 └── (Laravel 標準構成: app/ routes/ resources/ database/ tests/ ...)
 ```
@@ -67,18 +68,16 @@ hana-prime-diary-test/
 
 - 台帳 `infra/registry.yml` に `dir: hana-prime-diary-test / name: hana_prime_diary_test / ports {web: 8081, mysql: 3327} / domains: []` を追記し `make doctor` で衝突ゼロ確認。
 - 共有 Traefik・phpMyAdmin・node コンテナは **付けない**（提出物を最小に保つ）。DB を GUI で見たい場合はホストの 3327 に直結。
-- ホストの uid/gid が 1000 以外の Linux では `.env` に `UID=` / `GID=` を書く（compose が変数展開に使う）。README に記載する。
-- `.env` はグローバルルールにより **自動生成・編集しない**。`.env.example` を整備し、`cp .env.example .env` はユーザーに実行依頼する（README にも同手順を記載）。
+- ホストの uid/gid が 1000 以外の Linux では、最初の起動前に `.env` を用意して `UID=` / `GID=` を書く（compose が変数展開に使う）。手順は `docs/SETUP.md`。
+- `.env` は Claude が **自動生成・編集しない**。審査者向けには `composer run setup` が `.env.example` からコピーする。開発中の `.env` 作成と `APP_KEY` 生成はユーザーが実行した。
 - 審査者向け起動手順（README に記載予定）:
   ```bash
   docker compose up -d --build
-  cp .env.example .env
-  docker compose exec app composer install
-  docker compose exec app php artisan key:generate
-  docker compose exec app php artisan migrate
-  docker compose exec app php artisan storage:link
+  docker compose exec app composer run setup   # composer install / .env 作成 / key:generate / migrate / storage:link
+  docker compose exec app php artisan db:seed  # 持ち主アカウント + ダミー 12 件
   # http://localhost:8081
   ```
+  手順の全文は `docs/SETUP.md`。
 
 ## 5. 仕様（未記載事項の自己判断）
 
@@ -102,6 +101,10 @@ hana-prime-diary-test/
 | GET | /diaries/{diary}/edit | diaries.edit | 編集フォーム（現画像プレビュー、差替、「画像を削除」チェック） |
 | PUT | /diaries/{diary} | diaries.update | 更新。画像差替時は旧ファイル削除 |
 | DELETE | /diaries/{diary} | diaries.destroy | 削除（JS `confirm` で確認）。画像ファイルも削除 |
+| GET / POST | /login | login | ログインフォームと認証（1 分 5 回まで）。未ログインで書き込み系を開くとここへ転送 |
+| POST | /logout | logout | ログアウト |
+
+投稿・編集・削除（create / store / edit / update / destroy）は `auth` ミドルウェア付き。一覧の「編集」「削除」「新規投稿」の導線はログイン時だけ表示する。
 
 ### 5.3 バリデーション（FormRequest、日本語メッセージ）
 
@@ -121,11 +124,11 @@ hana-prime-diary-test/
 - **ログイン機能あり**（2026-09-03 に変更）。一覧は公開、投稿・編集・削除は持ち主（ログイン済み）だけ。第三者が勝手に変更できないようにするための未記載仕様の判断。ユーザー登録画面は作らず、シーダーで持ち主を 1 人作る。ログイン試行は 1 分 5 回まで
 - 表示言語は日本語（`APP_LOCALE=ja`、`APP_TIMEZONE=Asia/Tokyo`）。
 - テーマは「開発者の 1 行日記」。サイト名は **ひとこと開発日誌**。データ構造と機能は課題どおりで、名前・例文・デザイン（#9）だけを開発者向けに寄せる（2026-09-03 決定）。
-- CSS は `public/css/app.css` 1 ファイル（Vite/Tailwind/Node 不使用。審査者の Node 環境を不要にする）。
+- CSS は `public/css/app.css` 1 ファイル。#9 で Tailwind CSS を CLI ビルドで導入し、ビルド済み CSS をコミットする（審査者の Node 環境は不要のまま）。
 - ページネーションは Laravel 標準の `links()` を最小の自作ビュー（Tailwind 非依存）で描画。
 - テスト: Feature テスト（一覧5件区切り・投稿/編集/削除・画像アップロード `Storage::fake`・バリデーション）。DB は **compose 内 MySQL のテスト用 DB `diary_test`**（`phpunit.xml` で `DB_DATABASE=diary_test` を指定、`RefreshDatabase` 使用） ※決定。
 - コード整形は Laravel Pint（同梱）。
-- シーダー: `DiaryFactory` で 12 件投入できる `DatabaseSeeder`（ページネーション確認用、任意実行）。
+- シーダー: `DatabaseSeeder` が持ち主ユーザー 1 人（`UserSeeder`、ログインに必要）と日記 12 件（`DiarySeeder`、ページネーション確認用）を投入する。
 
 ## 6. 提出物
 
@@ -133,7 +136,7 @@ hana-prime-diary-test/
 - README に「AI ツールの使用有無 / 名称 / 使用範囲」欄を設け、下記を記載する案:
   - 使用有無: あり
   - 名称: Claude Code（Anthropic、モデル Claude Fable 5.1）
-  - 使用範囲: 環境構築（Docker）、設計、コード生成、テスト作成、README 作成の全工程で対話的に利用。仕様判断・レビュー・動作確認は本人が実施
+  - 使用範囲: 設計計画書、Docker 環境、コードとテスト、PR のレビュー下書き、ドキュメントの作成に対話的に利用。仕様の判断、Issue 起票、PR 作成とレビュー指摘の採否、マージ、動作確認は本人が実施（README の申告文と同じ内容）
 
 ## 7. ヒアリング結果（2026-09-03）
 
@@ -141,7 +144,7 @@ hana-prime-diary-test/
 |---|---|---|
 | 1 | MySQL 系列 | **26.7 Innovation**（README に根拠明記、9.7 LTS でも動作確認） |
 | 2 | GitHub リポジトリ | **ud111/hana-prime-diary-test（public）**。初回コミット後に作成済 |
-| 3 | 認証 | なし（推奨案どおり） |
+| 3 | 認証 | なし（推奨案どおり）→ **#21 で「一覧は公開、書き込みはログイン必須」に変更** |
 | 4 | 日付フィールド `diary_date` | **持たせる** |
 | 5 | 本文の文字数上限 | 100 文字（推奨案どおり、異論なし） |
 | 6 | 画像上限・編集時の画像削除 | 5MB / 削除チェックあり（推奨案どおり） |
@@ -175,7 +178,7 @@ GO 後の手順: `git init -b main` → README/.gitignore で `Initial commit` �
 | #7 | 編集（画像差替・画像削除） |
 | #8 | 削除（画像ファイルも削除） |
 | #9 | デザイン適用 |
-| #10 | README 仕上げ（手順・仕様判断・AI 利用申告）、MySQL 9.7 LTS 動作確認 |
+| #10 | README 仕上げ（手順・仕様判断・AI 利用申告）、`docs/SETUP.md`、MySQL 9.7 LTS 動作確認 |
 | #15 | AI 駆動開発の設定（`CLAUDE.md`、`.claude/` のフック・スキル・サブエージェント。実際に使うものだけ） |
 | #22 | Laravel Boost（MCP サーバーと公式スキルのみ。ガイドライン生成と `.ai/rules` は使わない。`.mcp.json` はコンテナ経由） |
 | #21 | ログイン機能（一覧は公開、投稿・編集・削除は持ち主のみ。未記載仕様の判断） |
