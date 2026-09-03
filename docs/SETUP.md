@@ -86,7 +86,18 @@ docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS dia
 
 注意: 26.7 で作ったデータディレクトリは 9.7 では開けません。既にボリューム `hana_prime_diary_test_db_data` がある場合は、別名のボリュームに変えるか、データが不要であればボリュームを削除してから起動してください。
 
-## 6. 停止
+## 6. CSS を変更するとき
+
+CSS は Tailwind CSS 4 を CLI でビルドしています。入力は `resources/css/app.css`、出力は `public/css/app.css` で、**出力もコミットします**（審査者は Node 不要）。編集したら次でビルドしてから、入力と出力の両方をコミットしてください。
+
+```bash
+docker compose --profile build run --rm node npm install   # 初回のみ
+docker compose --profile build run --rm node npm run build # public/css/app.css を生成
+```
+
+編集しながら自動でビルドするには `npm run watch` を使います。CI では再ビルドしてコミット済みの出力と一致するかを確認しているので、ビルドを忘れると CI が失敗します。`node` サービスは `build` プロファイル専用で、通常の `docker compose up` では起動しません。
+
+## 7. 停止
 
 ```bash
 docker compose down        # コンテナを停止 (データは残る)

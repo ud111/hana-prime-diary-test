@@ -65,6 +65,7 @@ hana-prime-diary-test/
 | web | nginx:1-alpine | **8081** | `infra/registry.yml` web_laravel 帯の空き番号 |
 | app | 自前 Dockerfile（php 8.5.10-fpm-alpine） | なし | ソースを bind mount、UID 1000 で実行し権限問題を回避 |
 | db | mysql:26.7.0 | **3327** | named volume `hana_prime_diary_test_db_data`。初期化 SQL でテスト用 DB `diary_test` も作成 |
+| node | node:24-alpine（`build` プロファイル専用、通常は起動しない） | なし | Tailwind CSS 4 の CLI ビルド。出力 `public/css/app.css` をコミット（#26） |
 
 - 台帳 `infra/registry.yml` に `dir: hana-prime-diary-test / name: hana_prime_diary_test / ports {web: 8081, mysql: 3327} / domains: []` を追記し `make doctor` で衝突ゼロ確認。
 - 共有 Traefik・phpMyAdmin・node コンテナは **付けない**（提出物を最小に保つ）。DB を GUI で見たい場合はホストの 3327 に直結。
