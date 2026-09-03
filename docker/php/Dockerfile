@@ -5,6 +5,8 @@ ARG UID=1000
 ARG GID=1000
 
 # Laravel / Composer に必要なツール・拡張
+# PHP 8.5 では OPcache が本体に組み込まれているため docker-php-ext-install opcache は不要
+# (実行するとビルドが失敗する)
 RUN apk add --no-cache git unzip \
     && docker-php-ext-install pdo_mysql
 

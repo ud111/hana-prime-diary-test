@@ -16,7 +16,7 @@
 | 対象 | 採用 | 根拠 |
 |---|---|---|
 | PHP | **8.5.10**（`php:8.5.10-fpm-alpine`） | Docker Hub 公式イメージの最新安定版。8.4 系は 8.4.25 |
-| MySQL | **26.7（Innovation、`mysql:26.7`）** ※決定 | Docker Hub `mysql:latest` = `innovation` = 26.7.0（8/18 に 26.7.1 リリース済）。`mysql:lts` = 9.7.2。MySQL 公式マニュアル「Innovation 系列 = 26.7、LTS 系列 = 9.7」 |
+| MySQL | **26.7.0（Innovation、`mysql:26.7.0` にパッチまで固定）** ※決定 | Docker Hub `mysql:latest` = `innovation` = 26.7.0（8/18 に 26.7.1 リリース済）。`mysql:lts` = 9.7.2。MySQL 公式マニュアル「Innovation 系列 = 26.7、LTS 系列 = 9.7」 |
 | Laravel | **13.x**（framework v13.30.1、skeleton v13.10.1、2026-09-01 時点） | PHP `^8.3` 要件。公式 CI は PHP 8.3/8.4/8.5 × `mysql:9.7` でテスト |
 | Composer | 2 系（`composer:2` イメージから同梱） | |
 | Web サーバ | nginx（`nginx:1-alpine`） | php-fpm と分離する一般的構成 |
@@ -63,10 +63,11 @@ hana-prime-diary-test/
 |---|---|---|---|
 | web | nginx:1-alpine | **8081** | `infra/registry.yml` web_laravel 帯の空き番号 |
 | app | 自前 Dockerfile（php 8.5.10-fpm-alpine） | なし | ソースを bind mount、UID 1000 で実行し権限問題を回避 |
-| db | mysql:26.7 | **3327** | named volume `hana_prime_diary_test_db_data`。初期化 SQL でテスト用 DB `diary_test` も作成 |
+| db | mysql:26.7.0 | **3327** | named volume `hana_prime_diary_test_db_data`。初期化 SQL でテスト用 DB `diary_test` も作成 |
 
 - 台帳 `infra/registry.yml` に `dir: hana-prime-diary-test / name: hana_prime_diary_test / ports {web: 8081, mysql: 3327} / domains: []` を追記し `make doctor` で衝突ゼロ確認。
 - 共有 Traefik・phpMyAdmin・node コンテナは **付けない**（提出物を最小に保つ）。DB を GUI で見たい場合はホストの 3327 に直結。
+- ホストの uid/gid が 1000 以外の Linux では `.env` に `UID=` / `GID=` を書く（compose が変数展開に使う）。README に記載する。
 - `.env` はグローバルルールにより **自動生成・編集しない**。`.env.example` を整備し、`cp .env.example .env` はユーザーに実行依頼する（README にも同手順を記載）。
 - 審査者向け起動手順（README に記載予定）:
   ```bash
