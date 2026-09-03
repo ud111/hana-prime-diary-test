@@ -14,7 +14,7 @@
             <time datetime="{{ $diary->diary_date->toDateString() }}" class="num text-[13px] font-semibold text-on-surface-variant">{{ $diary->diary_date->isoFormat('YYYY.MM.DD') }}</time>
             <span class="text-xs">{{ $diary->diary_date->isoFormat('ddd') }}曜日</span>
         </a>
-        <p class="text-[20px] sm:text-[24px] font-bold tracking-wide sm:tracking-wider leading-normal sm:leading-normal text-on-surface break-all">{{ $diary->content }}</p>
+        <p class="text-[20px] sm:text-[24px] font-bold tracking-wide sm:tracking-wider leading-normal sm:leading-normal text-on-surface break-all line-clamp-2">{{ $diary->content }}</p>
         {{-- 編集・削除は持ち主だけ。未ログインには表示しない (URL 直打ちは auth ミドルウェアが止める) --}}
         @auth
             <div class="mt-auto flex items-center gap-1 pt-1 -ml-2.5">
