@@ -16,10 +16,10 @@
         {{-- 残り文字数。JS 無効時は「/ 100」だけ出る --}}
         <span class="num text-[13px] text-on-surface-variant"><span data-content-count>0</span> / {{ $maxLength }}</span>
     </div>
-    <input type="text" id="content" name="content" required data-content-input
-           maxlength="{{ $maxLength }}" placeholder="今日の実装や気づきを 1 行で"
-           class="field-input h-12 text-[17px]"
-           value="{{ old('content', $diary?->content) }}">
+    {{-- 1 行日記だが、長い文を書きやすいように見た目はテキストエリア。改行は JS で防ぎ、サーバー側でも弾く --}}
+    <textarea id="content" name="content" required data-content-input rows="2"
+              maxlength="{{ $maxLength }}" placeholder="例: N+1 を 1 か所つぶした。ログを見る癖がついてきた。"
+              class="field-input h-auto resize-none py-3 text-[17px] leading-relaxed">{{ old('content', $diary?->content) }}</textarea>
     <p class="field-hint">{{ $maxLength }} 文字まで。改行は使えません。</p>
     @error('content')
         <p class="field-error">{{ $message }}</p>
@@ -79,7 +79,15 @@
         var count = document.querySelector('[data-content-count]');
         if (input && count) {
             var update = function () { count.textContent = Array.from(input.value).length; };
-            input.addEventListener('input', update);
+            // 1 行日記なので改行は入れない。Enter は無効にし、貼り付けで入った改行は取り除く
+            // 日本語入力の変換確定 (isComposing / keyCode 229) の Enter は通す
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) e.preventDefault();
+            });
+            input.addEventListener('input', function () {
+                if (/[\r\n]/.test(input.value)) input.value = input.value.replace(/[\r\n]+/g, ' ');
+                update();
+            });
             update();
         }
 

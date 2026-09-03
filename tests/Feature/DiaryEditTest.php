@@ -43,7 +43,7 @@ class DiaryEditTest extends TestCase
         $this->get(route('diaries.edit', $diary))
             ->assertOk()
             ->assertSee('value="2026-09-01"', false)
-            ->assertSee('value="編集前の本文"', false)
+            ->assertSee('編集前の本文')
             ->assertSee('/storage/diaries/existing.jpg')
             ->assertSee('画像を削除する');
     }

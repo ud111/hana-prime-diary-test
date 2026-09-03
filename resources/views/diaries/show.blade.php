@@ -60,11 +60,11 @@
             <p class="text-sm text-on-surface-variant">
                 <time datetime="{{ $diary->diary_date->toDateString() }}">{{ $diary->diary_date->isoFormat('YYYY年M月D日（dddd）') }}</time>
             </p>
-            <h1 class="text-[24px] font-bold leading-[1.5] sm:leading-normal tracking-wide break-all sm:text-[34px] text-on-surface">{{ $diary->content }}</h1>
+            <h1 class="text-[24px] font-black leading-[1.5] sm:leading-normal tracking-wide break-all sm:text-[34px] text-on-surface">{{ $diary->content }}</h1>
         </header>
         @if ($diary->hasImage())
             {{-- 画像が横幅に満たないときは、同じ画像を引き伸ばしてぼかした背景で余白を埋める --}}
-            <figure class="relative overflow-hidden rounded-xl border border-outline-variant bg-surface-low">
+            <figure class="relative overflow-hidden rounded-xl sm:rounded-2xl border border-outline-variant bg-surface-low">
                 <x-diary-image :diary="$diary" :width="480" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-2xl" alt="" aria-hidden="true"/>
                 <x-diary-image :diary="$diary" :width="1200" class="relative mx-auto block max-h-[32rem] w-auto max-w-full" :alt="$diary->diary_date->toDateString().' の写真'" loading="eager" fetchpriority="high"/>
             </figure>
