@@ -177,3 +177,5 @@ GO 後の手順: `git init -b main` → README/.gitignore で `Initial commit` �
 | #9 | デザイン適用 |
 | #10 | README 仕上げ（手順・仕様判断・AI 利用申告）、MySQL 9.7 LTS 動作確認 |
 | #15 | AI 駆動開発の設定（`CLAUDE.md`、`.claude/` のフック・スキル・サブエージェント。実際に使うものだけ） |
+| #22 | Laravel Boost（MCP サーバーと公式スキルのみ。ガイドライン生成と `.ai/rules` は使わない。`.mcp.json` はコンテナ経由） |
+| #21 | ログイン機能（一覧は公開、投稿・編集・削除は持ち主のみ。未記載仕様の判断） |
