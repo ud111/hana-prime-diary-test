@@ -2,6 +2,10 @@
 
 @section('title', '日記を編集 | '.config('app.name'))
 
+@push('head')
+    <x-seo :title="'日記を編集 | '.config('app.name')" description="日記の編集" :noindex="true"/>
+@endpush
+
 @section('content')
     <div class="flex flex-col gap-1.5">
         <x-breadcrumbs :items="[['label' => '日誌一覧', 'url' => route('diaries.index')], ['label' => $diary->diary_date->isoFormat('YYYY年M月D日').'の日記', 'url' => route('diaries.show', $diary)], ['label' => '編集']]"/>

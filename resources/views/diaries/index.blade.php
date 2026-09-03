@@ -2,6 +2,21 @@
 
 @section('title', '日記一覧 | '.config('app.name'))
 
+@push('head')
+    <x-seo
+        :title="'日記一覧 | '.config('app.name')"
+        description="1日1行だけ書く開発日記。コミットに残らない気づきや学びを、日付と写真とともに記録します。"
+        :url="$diaries->currentPage() > 1 ? $diaries->url($diaries->currentPage()) : route('diaries.index')"
+        :json-ld="[[
+            '@context' => 'https://schema.org',
+            '@type' => 'WebSite',
+            'name' => config('app.name'),
+            'url' => route('diaries.index'),
+            'inLanguage' => 'ja',
+        ]]"
+    />
+@endpush
+
 @section('content')
     {{-- ページの導入。統計や検索など仕様に無いものは置かない --}}
     <section class="flex flex-col gap-1.5 pt-4">

@@ -4,11 +4,15 @@
     <ol class="flex flex-wrap items-center gap-1.5">
         @foreach ($items as $item)
             <li class="flex items-center gap-1.5 {{ $loop->last ? 'min-w-0' : '' }}">
-                @if (! $loop->last && ! empty($item['url']))
-                    <a href="{{ $item['url'] }}" class="hover:text-primary">{{ $item['label'] }}</a>
-                    <x-icon name="chevron-right" class="h-3.5 w-3.5 text-outline-variant"/>
-                @else
+                @if ($loop->last)
                     <span class="truncate text-on-surface" aria-current="page">{{ $item['label'] }}</span>
+                @else
+                    @if (! empty($item['url']))
+                        <a href="{{ $item['url'] }}" class="hover:text-primary">{{ $item['label'] }}</a>
+                    @else
+                        <span>{{ $item['label'] }}</span>
+                    @endif
+                    <x-icon name="chevron-right" class="h-3.5 w-3.5 text-outline-variant"/>
                 @endif
             </li>
         @endforeach

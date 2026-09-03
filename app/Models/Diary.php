@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -42,6 +43,10 @@ class Diary extends Model
         static::deleted(function (Diary $diary): void {
             self::deleteImageFile($diary->image_path);
         });
+
+        // 日記が変わったら sitemap のキャッシュを捨てる
+        static::saved(fn () => Cache::forget('sitemap.xml'));
+        static::deleted(fn () => Cache::forget('sitemap.xml'));
     }
 
     protected function casts(): array

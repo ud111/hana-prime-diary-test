@@ -166,6 +166,7 @@ erDiagram
 - CSS は Tailwind CSS 4 を CLI でビルド（入力 `resources/css/app.css`、出力 `public/css/app.css` をコミット。審査者の Node 環境は不要）。デザインは Google Stitch で作成した 5 画面を基に、色トークンを `@theme` で定義して適用（#9）。仕様に無い要素のうち、シェア（X / Facebook / LINE / リンクのコピー）と前後の日記への導線は詳細ページに採用し、タグ・検索・月フィルタ・統計・状態バッジは置かない。画像が無い日記はダミー画像で形をそろえる。アイコンは使う分だけのインライン SVG。
 - ページネーションは Laravel 標準の `links()` を自作ビュー `pagination/default.blade.php`（Tailwind のクラスで描画、表示件数の案内付き）で描画。
 - フォントは Google Fonts の Inter と Noto Sans JP を読み込み、読み込めない環境では system-ui にフォールバックする。アイコンはインライン SVG で外部スクリプトは使わない。
+- SEO（#36）: 各ページに description / OGP / Twitter カード、公開ページに canonical、ログイン・投稿・編集は noindex。JSON-LD は一覧に `WebSite`、詳細に `BlogPosting` と `BreadcrumbList`。`/robots.txt` と `/sitemap.xml` はルートで動的生成（sitemap は 1 時間キャッシュ、日記の保存・削除で破棄）。絶対 URL は `APP_URL` 基準。既定の OGP 画像は `public/images/ogp.png`。
 - テスト: Feature テスト（一覧5件区切り・投稿/編集/削除・画像アップロード `Storage::fake`・バリデーション）。DB は **compose 内 MySQL のテスト用 DB `diary_test`**（`phpunit.xml` で `DB_DATABASE=diary_test` を指定、`RefreshDatabase` 使用） ※決定。
 - コード整形は Laravel Pint（同梱）。
 - シーダー: `DatabaseSeeder` が持ち主ユーザー 1 人（`UserSeeder`、ログインに必要）と日記 12 件（`DiarySeeder`、ページネーション確認用）を投入する。
@@ -226,7 +227,7 @@ GO 後の手順: `git init -b main` → README/.gitignore で `Initial commit` �
 | #27 | 日本語のエラーページ（404 / 419 / 429 / 500） |
 | #28 | ER 図（Mermaid） |
 | #32 | 詳細ページ |
-| #35 | 構造の整理（h1 の主題化、パンくず、CI の `.env`、作業手順の明文化） |
+| #35 | 構造の整理（レビューの持ち越しと作業手順の明文化。h1 の主題化、パンくず、CI の `.env`） |
 | #36 | SEO の基本対策（メタ情報・OGP・構造化データ・sitemap） |
 | #37 | 画像の軽量化と表示速度（WebP / AVIF、サムネイル、キャッシュ） |
 | #38 | 投稿・編集画面の画像プレビュー |

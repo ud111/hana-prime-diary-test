@@ -70,6 +70,14 @@ docker compose exec app vendor/bin/pint --test  # コード整形チェック
 - 第三者が勝手に変更できないよう、書き込みはログイン必須。ユーザー登録画面は作らず、持ち主 1 人をシーダーで作成
 - HTML と CSS は最低限。デザインは別途反映予定
 
+## SEO と共有
+
+- 各ページに description、OGP、Twitter カードを出します。詳細ページは本文が description、添付画像が OGP 画像（無ければ既定の画像）です
+- 公開ページには canonical、ログイン・投稿・編集は `noindex` です
+- 構造化データ（JSON-LD）は一覧に `WebSite`、詳細に `BlogPosting` と `BreadcrumbList`
+- `/robots.txt` と `/sitemap.xml` を動的に返します（sitemap は 1 時間キャッシュし、日記の保存・削除で更新）
+- 絶対 URL は `.env` の `APP_URL` から組み立てるので、公開時はそこを変えるだけです
+
 ## 開発の進め方
 
 - Issue ごとにブランチを切り、PR を作って Squash マージしています。CI（Pint と PHPUnit）が PR ごとに動きます
