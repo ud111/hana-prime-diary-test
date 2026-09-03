@@ -4,24 +4,20 @@
 
 Laravel で作った 1 行日記サイトです。開発者が 1 日 1 行だけ書く日誌、というテーマで作りました。
 
-- 一覧（5 件ごとのページネーション、画像のサムネイル表示）
-- 新規投稿（日付・本文・jpg 画像 1 枚）
-- 編集（画像の差替・削除）
-- 削除（確認ダイアログ付き。画像ファイルも削除）
-- 詳細ページ（大きな画像、シェア、前後の日記への導線）
-- ログイン（一覧は公開、投稿・編集・削除は持ち主のみ）
-- 投稿・編集画面での画像プレビュー、日本語のエラーページ（404 / 419 / 429 / 500）
+- 一覧（5 件ごとのページネーション、画像のサムネイル）、詳細（大きな画像、シェア、前後の日記）
+- 新規投稿・編集（日付・本文・jpg 画像 1 枚、画像の差替と削除、その場でプレビュー）、削除（確認ダイアログ付き）
+- ログイン（一覧と詳細は公開、投稿・編集・削除は持ち主のみ）
+- 画像は保存時に WebP / AVIF を生成して軽く配信。各ページに OGP と構造化データ、`robots.txt` と `sitemap.xml`
 
 ## 動作環境
 
 | 項目 | バージョン | 選定理由 |
 |---|---|---|
 | PHP | 8.5.10 | 公式 Docker イメージの最新安定版 |
-| MySQL | 26.7.0（Innovation） | `mysql:latest` が指す最新リリース。LTS 系列の 9.7 でも migrate とテストが通ることを確認済み |
+| MySQL | 26.7.0（Innovation） | `mysql:latest` が指す最新リリース。LTS 9.7 でも動作確認済み |
 | Laravel | 13.x | 最新のメジャーバージョン |
-| Web サーバー | nginx | php-fpm と分離した一般的な構成 |
 
-すべて Docker Compose で動きます。ホストに PHP や MySQL を入れる必要はありません。
+すべて Docker Compose で動きます。ホストに PHP・MySQL・Node を入れる必要はありません。
 
 ## 起動方法
 
@@ -30,71 +26,28 @@ git clone https://github.com/ud111/hana-prime-diary-test.git
 cd hana-prime-diary-test
 docker compose up -d --build
 docker compose exec app composer run setup   # 初回のみ: composer install / .env 作成 / key:generate / migrate / storage:link
-docker compose exec app php artisan db:seed  # 持ち主アカウントと、このサイトを作った開発の記録 14 件 (うち 10 件は画像付き)
+docker compose exec app php artisan db:seed  # 持ち主アカウントと、このサイトを作った開発の記録 14 件 (画像付き)
 ```
 
-http://localhost:8081 を開いてください。詳しい手順とつまずきやすい点は [docs/SETUP.md](docs/SETUP.md) にまとめています。
-
-### ログイン
-
-一覧は誰でも見られます。投稿・編集・削除は持ち主だけができます。`db:seed` で次のアカウントが作られます。
+http://localhost:8081 を開いてください。投稿・編集・削除は次のアカウントでログインしてください（ローカル確認用の値です。公開環境では必ず変更してください）。
 
 | メールアドレス | パスワード |
 |---|---|
 | admin@example.com | password |
 
-ローカル確認用の値です。公開環境で使う場合は、次のように必ず変更してください。
+詳しい手順とつまずきやすい点は [docs/SETUP.md](docs/SETUP.md) にあります。
 
-```bash
-docker compose exec app php artisan tinker --execute \
-  "App\Models\User::where('email', 'admin@example.com')->first()->update(['password' => '新しいパスワード']);"
-```
+## ドキュメント
 
-ログインの試行は、メールアドレスと IP の組み合わせごとに 1 分 5 回までです（成功した回数も含みます）。超えると 1 分間は 429 になります。
-
-## テスト
-
-```bash
-docker compose exec app php artisan test        # 79 件
-docker compose exec app vendor/bin/pint --test  # コード整形チェック
-```
-
-テストはテスト用データベース `diary_test` に対して実行し、開発用 DB のデータには触れません。GitHub Actions でも同じテストを MySQL 26.7.0 のサービスコンテナで実行しています。
-
-## 仕様と判断したこと
-
-課題に記載の無い仕様は次のように決めました。理由と詳細、テーブル構成の ER 図は [docs/DESIGN.md](docs/DESIGN.md) にあります。
-
-- 本文は 100 文字まで・改行なし。日付は入力でき、既定は今日
-- 画像は jpg のみ 1 枚、5MB まで。拡張子だけでなく実ファイルの MIME も検査し、ULID のファイル名で `storage/app/public/diaries/` に保存
-- 一覧は日付の新しい順（同じ日付は後から登録した順）。トップページ `/` が一覧
-- 削除・差替時は DB の保存が成功してから画像ファイルを消し、途中で失敗しても画像を失わない
-- 第三者が勝手に変更できないよう、書き込みはログイン必須。ユーザー登録画面は作らず、持ち主 1 人をシーダーで作成
-- デザインは Google Stitch で作った 5 画面を基に、Tailwind CSS 4（CLI ビルド、出力 CSS をコミット）で実装。課題に無いタグ・検索・統計などは置かず、詳細ページのシェアと前後導線は採用
-
-## SEO と共有
-
-- 各ページに description、OGP、Twitter カードを出します。詳細ページは本文が description、添付画像が OGP 画像（無ければ既定の画像）です
-- 公開ページには canonical、ログイン・投稿・編集は `noindex` です
-- 構造化データ（JSON-LD）は一覧に `WebSite`、詳細に `BlogPosting` と `BreadcrumbList`
-- `/robots.txt` と `/sitemap.xml` を動的に返します（sitemap は 1 時間キャッシュし、日記の保存・削除で更新）
-- 絶対 URL は `.env` の `APP_URL` から組み立てるので、公開時はそこを変えるだけです
-
-## 画像の軽量化
-
-- アップロードした JPEG から、保存時に幅 480 / 1200 の WebP と AVIF を生成し、`<picture>` で軽い形式から順に配信します。OGP には互換性のため元の JPEG を使います
-- 画像には `width` / `height` を出し、一覧は遅延読み込み、詳細の主画像は優先読み込みです
-- nginx で画像と CSS を 7 日キャッシュし、テキストは gzip で送ります（CSS は更新時刻をクエリに付けて差し替え時に取り直します）
-- 計測（2400×1600 の JPEG、186KB）: 1200 幅は WebP 29KB / AVIF 21KB（JPEG なら 56KB）、480 幅は WebP 7KB / AVIF 5KB（JPEG なら 13KB）。AVIF の生成は 1200 幅で 0.14 秒
-
-## 開発の進め方
-
-- Issue ごとにブランチを切り、PR を作って Squash マージしています。CI（Pint と PHPUnit）が PR ごとに動きます
-- 設計計画書 [docs/DESIGN.md](docs/DESIGN.md) を最初に書き、そこから Issue を起票しました
-- CSS は Tailwind CSS の CLI でビルドし、出力もコミットしています（審査者は Node 不要。CI が再ビルドして一致を検査）
+| ドキュメント | 内容 |
+|---|---|
+| [docs/SETUP.md](docs/SETUP.md) | 環境構築と運用（テスト、CSS のビルド、画像の軽量版、つまずきやすい点） |
+| [docs/SPEC.md](docs/SPEC.md) | 仕様（画面、データモデルと ER 図、バリデーション、画像、ログイン、SEO） |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | 開発の進め方（Issue と PR の流れ、テスト、CSS、Claude Code の使い方） |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | 判断の記録（バージョン選定、未記載仕様の判断、途中で変えたこと、起きた問題） |
 
 ## AI ツールの利用について
 
 - **AI ツールの使用有無**: あり
-- **使用したAIツールの名称**: Claude Code（Anthropic）、Laravel Boost（Laravel 公式の MCP サーバー。ドキュメント検索と DB スキーマ参照に使用）、Google Stitch（画面デザインの作成。MCP 経由で Claude Code から取得）
+- **使用したAIツールの名称**: Claude Code（Anthropic）、Laravel Boost（Laravel 公式の MCP サーバー。ドキュメント検索と DB スキーマ参照に使用）、Google Stitch（画面デザインの作成。MCP 経由で Claude Code から取得）、Gemini（シーダーに同梱した画像の生成）
 - **どのように利用したか（使用範囲）**: 設計計画書の作成、Docker 環境の構築、コードとテストの実装、PR のレビュー下書きの作成（読み取り専用のサブエージェントで差分を検証）、ドキュメント作成に Claude Code を対話的に使いました。デザインは Google Stitch で作成し、細部は本人が調整しました。仕様の判断、Issue の起票、PR の作成とレビュー指摘の採否、マージ、動作確認は本人が行っています。Claude Code の設定（規約、フック、スキル）はリポジトリの `CLAUDE.md` と `.claude/` に置いています。

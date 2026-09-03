@@ -1,6 +1,6 @@
 # CLAUDE.md — 1行日記サイト
 
-Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。設計は `docs/DESIGN.md`、環境構築は `README.md`。
+Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。仕様は `docs/SPEC.md`、開発の進め方は `docs/DEVELOPMENT.md`、判断の記録は `docs/DECISIONS.md`、環境構築は `docs/SETUP.md`。
 このファイルは Claude Code がこのリポジトリで作業するときの規約。人が読んでも分かるように書く。
 
 ## 開発フロー
@@ -15,7 +15,7 @@ Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。設計は `do
 - 主要な処理（コントローラのアクション、バリデーション、画像の保存と削除、クエリ）には、何をしているか・なぜかが分かる短い日本語コメントを付ける。自明な行には付けない。
 - 整形は Laravel Pint。PHP を編集するとフックが自動で整形する。push 前に `vendor/bin/pint --test` が通ること。
 - CSS は Tailwind の CLI ビルド。Blade か `resources/css/app.css` を変えたら、**commit の直前に** `docker compose --profile build run --rm node npm run build` を実行し、`git diff --stat public/css/app.css` で意図した差分だけであることを確認してから入力と出力を一緒に commit する（CI が再ビルドして一致を検査する）。`npm run watch` の出力は非圧縮なので、そのまま commit しない。
-- 仕様の判断は `docs/DESIGN.md` §5 に従う。本文は 100 文字・改行なし、画像は jpg 1 枚 5MB まで。
+- 仕様の判断は `docs/SPEC.md` に従う。本文は 100 文字・改行なし、画像は jpg 1 枚 5MB まで。
 
 ## テストと DB
 
