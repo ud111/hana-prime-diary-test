@@ -11,7 +11,7 @@ ARG GID=1000
 RUN apk add --no-cache git unzip libjpeg-turbo libwebp libavif libpng \
     && apk add --no-cache --virtual .build-deps libjpeg-turbo-dev libwebp-dev libavif-dev libpng-dev \
     && docker-php-ext-configure gd --with-jpeg --with-webp --with-avif \
-    && docker-php-ext-install pdo_mysql gd \
+    && docker-php-ext-install pdo_mysql gd exif \
     && apk del .build-deps
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

@@ -25,6 +25,7 @@ use RuntimeException;
  * @property string|null $image_path
  * @property int|null $image_width
  * @property int|null $image_height
+ * @property list<string>|null $image_formats
  */
 #[Fillable(['diary_date', 'content', 'image_path'])]
 class Diary extends Model
@@ -57,6 +58,7 @@ class Diary extends Model
         return [
             // 日付だけを扱うので時刻を持たない date キャストにする
             'diary_date' => 'date',
+            'image_formats' => 'array',
         ];
     }
 
@@ -131,9 +133,10 @@ class Diary extends Model
             throw new RuntimeException('画像の保存に失敗しました。');
         }
         $this->image_path = $path;
-        // 軽量版は DiaryImageProcessor::process() で作る (寸法もそこで入る)
+        // 軽量版は DiaryImageProcessor::process() で作る (寸法と形式もそこで入る)
         $this->image_width = null;
         $this->image_height = null;
+        $this->image_formats = null;
 
         return $this;
     }
@@ -146,6 +149,7 @@ class Diary extends Model
         $this->image_path = null;
         $this->image_width = null;
         $this->image_height = null;
+        $this->image_formats = null;
 
         return $this;
     }
@@ -165,7 +169,7 @@ class Diary extends Model
      */
     public function hasImageVariants(): bool
     {
-        return $this->image_path !== null && $this->image_width !== null;
+        return $this->image_path !== null && $this->image_width !== null && ! empty($this->image_formats);
     }
 
     /**

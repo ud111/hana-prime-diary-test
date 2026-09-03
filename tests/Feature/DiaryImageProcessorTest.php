@@ -45,6 +45,83 @@ class DiaryImageProcessorTest extends TestCase
             }
         }
         $this->assertContains('webp', DiaryImageProcessor::availableFormats());
+        // 作れた形式が記録される (<picture> の出し分けに使う)
+        $this->assertSame(DiaryImageProcessor::availableFormats(), $diary->fresh()->image_formats);
+    }
+
+    public function test_store_rejects_unreadable_jpeg_and_leaves_no_files(): void
+    {
+        $this->actingAsOwner();
+        // JPEG のヘッダだけ正しく中身が壊れたファイル。MIME 検査は通るが GD では読めない
+        $broken = UploadedFile::fake()->createWithContent('broken.jpg', "\xFF\xD8\xFF\xE0".str_repeat('x', 300));
+
+        $this->from(route('diaries.create'))
+            ->post(route('diaries.store'), ['diary_date' => '2026-09-03', 'content' => '壊れた画像', 'image' => $broken])
+            ->assertRedirect(route('diaries.create'))
+            ->assertSessionHasErrors('image');
+
+        // レコードもファイルも残らない
+        $this->assertDatabaseCount('diaries', 0);
+        $this->assertSame([], Storage::disk(Diary::IMAGE_DISK)->allFiles());
+    }
+
+    public function test_store_rejects_oversized_dimensions(): void
+    {
+        $this->actingAsOwner();
+        $huge = UploadedFile::fake()->image('huge.jpg', DiaryImageProcessor::MAX_DIMENSION + 1, 10);
+
+        $this->post(route('diaries.store'), ['diary_date' => '2026-09-03', 'content' => '大きすぎる画像', 'image' => $huge])
+            ->assertSessionHasErrors(['image' => '画像は縦横それぞれ '.DiaryImageProcessor::MAX_DIMENSION.'px 以内の画像を選んでください。']);
+        $this->assertDatabaseCount('diaries', 0);
+        $this->assertSame([], Storage::disk(Diary::IMAGE_DISK)->allFiles());
+    }
+
+    public function test_update_replaces_variants_and_failure_keeps_old_image(): void
+    {
+        $this->actingAsOwner();
+        $diary = Diary::factory()->make(['diary_date' => '2026-09-01', 'content' => '元の日記']);
+        $diary->attachImage($this->jpeg());
+        app(DiaryImageProcessor::class)->process($diary);
+        $diary->save();
+        $oldPath = $diary->image_path;
+        $oldVariants = DiaryImageProcessor::variantPaths($oldPath);
+
+        // 壊れた画像で差替に失敗しても、元の画像と軽量版は残る
+        $broken = UploadedFile::fake()->createWithContent('broken.jpg', "\xFF\xD8\xFF\xE0".str_repeat('x', 300));
+        $this->put(route('diaries.update', $diary), ['diary_date' => '2026-09-01', 'content' => '元の日記', 'image' => $broken])
+            ->assertSessionHasErrors('image');
+        $this->assertSame($oldPath, $diary->fresh()->image_path);
+        Storage::disk(Diary::IMAGE_DISK)->assertExists($oldPath);
+        $this->assertCount(1 + count($oldVariants), Storage::disk(Diary::IMAGE_DISK)->allFiles());
+
+        // 正しい画像で差し替えると旧ファイルと旧軽量版が消え、新しい軽量版ができる
+        $this->put(route('diaries.update', $diary), ['diary_date' => '2026-09-01', 'content' => '元の日記', 'image' => $this->jpeg()])
+            ->assertRedirect(route('diaries.index'));
+        $diary->refresh();
+        $this->assertNotSame($oldPath, $diary->image_path);
+        Storage::disk(Diary::IMAGE_DISK)->assertMissing($oldPath);
+        foreach ($oldVariants as $path) {
+            Storage::disk(Diary::IMAGE_DISK)->assertMissing($path);
+        }
+        $this->assertTrue($diary->hasImageVariants());
+    }
+
+    public function test_removing_image_clears_dimensions_and_formats(): void
+    {
+        $this->actingAsOwner();
+        $diary = Diary::factory()->make();
+        $diary->attachImage($this->jpeg());
+        app(DiaryImageProcessor::class)->process($diary);
+        $diary->save();
+
+        $this->put(route('diaries.update', $diary), ['diary_date' => '2026-09-01', 'content' => '画像を消す', 'remove_image' => '1'])
+            ->assertRedirect(route('diaries.index'));
+
+        $diary->refresh();
+        $this->assertNull($diary->image_path);
+        $this->assertNull($diary->image_width);
+        $this->assertNull($diary->image_formats);
+        $this->assertSame([], Storage::disk(Diary::IMAGE_DISK)->allFiles());
     }
 
     public function test_store_generates_variants_and_list_uses_picture(): void
