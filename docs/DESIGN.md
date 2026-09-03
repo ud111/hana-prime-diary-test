@@ -105,7 +105,7 @@ hana-prime-diary-test/
 
 ### 5.3 バリデーション（FormRequest、日本語メッセージ）
 
-- `diary_date`: required / date
+- `diary_date`: required / date_format:Y-m-d（`<input type="date">` の送信値は Y-m-d 固定のため）
 - `content`: required / string / max:100 / 改行を含まない（正規表現 or カスタムルール）
 - `image`: nullable / file / `mimes:jpg,jpeg` / `mimetypes:image/jpeg`（拡張子偽装対策に実 MIME も検査）/ max:5120 KB
 - 編集時 `remove_image`: boolean

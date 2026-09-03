@@ -19,7 +19,19 @@
 </div>
 
 <div class="field">
-    <label for="image">画像（jpg・5MBまで・1枚）</label>
+    @if ($diary?->hasImage())
+        {{-- 編集時: 現在の画像。新しい画像を選ぶと差し替わり、チェックで削除できる --}}
+        <p class="field-label">現在の画像</p>
+        <img class="diary-image" src="{{ $diary->image_url }}" alt="現在の画像">
+        <label class="checkbox">
+            <input type="checkbox" name="remove_image" value="1" @checked(old('remove_image'))>
+            画像を削除する
+        </label>
+        @error('remove_image')
+            <p class="error">{{ $message }}</p>
+        @enderror
+    @endif
+    <label for="image">{{ $diary?->hasImage() ? '新しい画像に差し替える' : '画像' }}（jpg・5MBまで・1枚）</label>
     <input type="file" id="image" name="image" accept="image/jpeg,.jpg,.jpeg">
     @error('image')
         <p class="error">{{ $message }}</p>

@@ -4,6 +4,9 @@
         {{ $diary->diary_date->isoFormat('YYYY年M月D日(ddd)') }}
     </time>
     <p class="diary-content">{{ $diary->content }}</p>
+    <div class="diary-actions">
+        <a href="{{ route('diaries.edit', $diary) }}">編集</a>
+    </div>
     @if ($diary->hasImage())
         <img class="diary-image" src="{{ $diary->image_url }}" alt="{{ $diary->diary_date->toDateString() }} の写真" loading="lazy">
     @endif
