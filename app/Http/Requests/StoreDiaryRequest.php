@@ -28,7 +28,7 @@ class StoreDiaryRequest extends FormRequest
             'content' => ['required', 'string', 'max:'.Diary::CONTENT_MAX_LENGTH, 'regex:/\A[^\r\n]*\z/u'],
             // jpg のみ。拡張子だけでなく実ファイルの MIME も検査し、5MB (5120KB) まで
             // 寸法の上限は巨大な画像でメモリを使い切らないため (DiaryImageProcessor::MAX_DIMENSION と同じ値)
-            'image' => ['nullable', 'file', 'mimes:jpg,jpeg', 'mimetypes:image/jpeg', 'max:5120', 'dimensions:max_width='.DiaryImageProcessor::MAX_DIMENSION.',max_height='.DiaryImageProcessor::MAX_DIMENSION],
+            'image' => ['nullable', 'file', 'mimes:jpg,jpeg', 'mimetypes:image/jpeg', 'max:'.Diary::IMAGE_MAX_KB, 'dimensions:max_width='.DiaryImageProcessor::MAX_DIMENSION.',max_height='.DiaryImageProcessor::MAX_DIMENSION],
         ];
     }
 

@@ -36,6 +36,9 @@ class Diary extends Model
     /** 本文の最大文字数。バリデーションとフォームの maxlength で共有する */
     public const CONTENT_MAX_LENGTH = 100;
 
+    /** 画像の上限サイズ (KB)。バリデーションとフォームの案内で共有する */
+    public const IMAGE_MAX_KB = 5120;
+
     /** 画像を保存するディスク名と、その中のディレクトリ */
     public const IMAGE_DISK = 'public';
 

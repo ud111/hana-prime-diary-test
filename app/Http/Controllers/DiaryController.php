@@ -57,25 +57,7 @@ class DiaryController extends Controller
     {
         $diary = new Diary($request->safe()->only(['diary_date', 'content']));
 
-        // 画像は任意。あれば public ディスクに保存し、配信用の軽量版 (WebP / AVIF) を作ってからレコードを作る
-        try {
-            if ($request->hasFile('image')) {
-                $diary->attachImage($request->file('image'));
-                $this->images->process($diary);
-            }
-            $diary->save();
-        } catch (ImageProcessingException $e) {
-            // 読み込めない・大きすぎる画像は、置いたファイルを消して入力エラーとして返す
-            Diary::deleteImageFile($diary->image_path);
-
-            return back()->withInput()->withErrors(['image' => $e->getMessage()]);
-        } catch (\Throwable $e) {
-            // 保存に失敗したら、先に置いた画像ファイル (軽量版含む) を残さない
-            Diary::deleteImageFile($diary->image_path);
-            throw $e;
-        }
-
-        return redirect()->route('diaries.index')->with('status', '投稿しました。');
+        return $this->saveWithImage($diary, $request, '投稿しました。');
     }
 
     /**
@@ -91,8 +73,19 @@ class DiaryController extends Controller
      */
     public function update(UpdateDiaryRequest $request, Diary $diary): RedirectResponse
     {
-        $oldPath = $diary->image_path;
         $diary->fill($request->safe()->only(['diary_date', 'content']));
+
+        return $this->saveWithImage($diary, $request, '更新しました。');
+    }
+
+    /**
+     * 画像の反映と保存を、新規と編集で共通に行う。
+     * 新しい画像があれば保存して軽量版を作り、削除チェックがあれば外す。DB の保存が成功してから不要になった旧ファイルを消す
+     */
+    private function saveWithImage(Diary $diary, StoreDiaryRequest $request, string $message): RedirectResponse
+    {
+        // 編集前の画像パス (新規なら null)。保存後に差し替え・削除された旧ファイルを消すために控える
+        $oldPath = $diary->getOriginal('image_path');
 
         try {
             if ($request->hasFile('image')) {
@@ -104,17 +97,13 @@ class DiaryController extends Controller
             }
             $diary->save();
         } catch (ImageProcessingException $e) {
-            // 読み込めない・大きすぎる画像は、新しく置いたファイルだけ消して入力エラーとして返す (元の画像は残る)
-            if ($diary->image_path !== $oldPath) {
-                Diary::deleteImageFile($diary->image_path);
-            }
+            // 読めない・大きすぎる画像は、新しく置いたファイルだけ消して入力エラーとして返す (元の画像は残る)
+            $this->discardNewImage($diary, $oldPath);
 
             return back()->withInput()->withErrors(['image' => $e->getMessage()]);
         } catch (\Throwable $e) {
             // 保存に失敗したら新しく置いたファイルだけ消し、元の画像は残す
-            if ($diary->image_path !== $oldPath) {
-                Diary::deleteImageFile($diary->image_path);
-            }
+            $this->discardNewImage($diary, $oldPath);
             throw $e;
         }
 
@@ -123,7 +112,17 @@ class DiaryController extends Controller
             Diary::deleteImageFile($oldPath);
         }
 
-        return redirect()->route('diaries.index')->with('status', '更新しました。');
+        return redirect()->route('diaries.index')->with('status', $message);
+    }
+
+    /**
+     * 今回の操作で新しく置いた画像ファイル (軽量版含む) を消す。元からあった画像には触らない
+     */
+    private function discardNewImage(Diary $diary, ?string $oldPath): void
+    {
+        if ($diary->image_path !== null && $diary->image_path !== $oldPath) {
+            Diary::deleteImageFile($diary->image_path);
+        }
     }
 
     /**
