@@ -30,12 +30,12 @@
     <p class="field-label">画像 <span class="ml-1 text-xs font-normal text-on-surface-variant">任意・JPEG・5MB まで・1 枚</span></p>
     @if ($diary?->hasImage())
         {{-- 編集時: 現在の画像。新しい画像を選ぶと差し替わり、チェックで削除できる --}}
-        <div class="mb-3 flex items-center gap-4 rounded-lg border border-outline-variant p-3">
+        <div class="mb-3 flex items-center gap-4 rounded-lg border border-outline-variant p-3" data-current-image>
             <img class="h-20 w-28 shrink-0 rounded-md object-cover" src="{{ $diary->image_url }}" alt="現在の画像">
             <div class="flex flex-col gap-1.5 text-sm">
-                <span class="text-on-surface-variant">現在の画像。下で新しい画像を選ぶと差し替わります。</span>
+                <span class="text-on-surface-variant" data-current-note>現在の画像。下で新しい画像を選ぶと差し替わります。</span>
                 <label class="inline-flex items-center gap-2 font-medium text-error">
-                    <input type="checkbox" name="remove_image" value="1" class="h-4 w-4 rounded border-outline-variant accent-error" @checked(old('remove_image') === '1')>
+                    <input type="checkbox" name="remove_image" value="1" class="h-4 w-4 rounded border-outline-variant accent-error" data-remove-image @checked(old('remove_image') === '1')>
                     この画像を削除する
                 </label>
             </div>
@@ -54,12 +54,25 @@
         </span>
         <input type="file" id="image" name="image" accept="image/jpeg,.jpg,.jpeg" class="sr-only" data-image-input>
     </label>
+    {{-- 選んだ画像のプレビュー (JS で表示。送信前に取り違えに気づけるように) --}}
+    <div class="mt-3 flex items-start gap-4 rounded-lg border border-outline-variant bg-surface-low p-3" data-preview hidden>
+        <img class="h-24 w-32 shrink-0 rounded-md object-cover" src="" alt="選択した画像のプレビュー" data-preview-img>
+        <div class="flex min-w-0 flex-1 flex-col gap-1.5 text-sm">
+            <span class="font-medium" data-preview-title>{{ $diary?->hasImage() ? 'この画像に差し替えます' : 'この画像を添付します' }}</span>
+            <span class="truncate text-[13px] text-on-surface-variant" data-preview-name></span>
+            <span class="text-[13px] text-error" data-preview-warning hidden></span>
+            <button type="button" class="action-link self-start -ml-2.5" data-preview-clear>
+                <x-icon name="x" class="h-3.5 w-3.5"/>
+                選択を解除
+            </button>
+        </div>
+    </div>
     @error('image')
         <p class="field-error">{{ $message }}</p>
     @enderror
 </div>
 
-{{-- 残り文字数と選択したファイル名の表示 (無くても送信できる、補助的な JS) --}}
+{{-- 残り文字数、選んだ画像のプレビュー (無くても送信できる、補助的な JS。検証はサーバー側が本体) --}}
 <script>
     (function () {
         var input = document.querySelector('[data-content-input]');
@@ -69,12 +82,58 @@
             input.addEventListener('input', update);
             update();
         }
+
         var file = document.querySelector('[data-image-input]');
         var name = document.querySelector('[data-image-name]');
-        if (file && name) {
-            file.addEventListener('change', function () {
-                name.textContent = file.files.length ? file.files[0].name : 'ファイルは選ばれていません';
-            });
-        }
+        var preview = document.querySelector('[data-preview]');
+        if (!file || !preview) return;
+        var img = preview.querySelector('[data-preview-img]');
+        var previewName = preview.querySelector('[data-preview-name]');
+        var warning = preview.querySelector('[data-preview-warning]');
+        var clear = preview.querySelector('[data-preview-clear]');
+        var current = document.querySelector('[data-current-image]');
+        var currentNote = document.querySelector('[data-current-note]');
+        var removeCheck = document.querySelector('[data-remove-image]');
+        var objectUrl = null;
+        var maxBytes = 5 * 1024 * 1024;
+
+        var reset = function () {
+            if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+            img.removeAttribute('src');
+            preview.hidden = true;
+            warning.hidden = true;
+            if (name) name.textContent = 'ファイルは選ばれていません';
+            // 編集画面: 「現在の画像」の表示を元に戻す
+            if (current) { current.classList.remove('opacity-50'); }
+            if (currentNote) { currentNote.textContent = '現在の画像。下で新しい画像を選ぶと差し替わります。'; }
+            if (removeCheck) { removeCheck.disabled = false; }
+        };
+
+        file.addEventListener('change', function () {
+            reset();
+            var selected = file.files && file.files[0];
+            if (!selected) return;
+            if (name) name.textContent = selected.name;
+            previewName.textContent = selected.name + '（' + (selected.size / 1024 / 1024).toFixed(2) + ' MB）';
+            // その場で分かる範囲の注意 (最終的な検証はサーバー側)
+            var problems = [];
+            if (selected.type !== 'image/jpeg') problems.push('JPEG 形式のファイルを選んでください。');
+            if (selected.size > maxBytes) problems.push('5MB 以下のファイルを選んでください。');
+            if (problems.length) { warning.textContent = problems.join(' '); warning.hidden = false; }
+            if (selected.type.indexOf('image/') === 0) {
+                objectUrl = URL.createObjectURL(selected);
+                img.src = objectUrl;
+            }
+            preview.hidden = false;
+            // 編集画面: 新しい画像を選んだら「現在の画像」は差し替え対象になり、削除チェックは意味を持たないので外す
+            if (current) { current.classList.add('opacity-50'); }
+            if (currentNote) { currentNote.textContent = '下で選んだ画像に差し替わります。'; }
+            if (removeCheck) { removeCheck.checked = false; removeCheck.disabled = true; }
+        });
+
+        clear.addEventListener('click', function () {
+            file.value = '';
+            reset();
+        });
     })();
 </script>
