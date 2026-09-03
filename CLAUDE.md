@@ -19,7 +19,7 @@ Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。設計は `do
 ## テストと DB
 
 - テストは必ずテスト用 DB `diary_test` で実行する。`tests/TestCase.php` のガードが `_test` 以外の接続先を拒否する。
-- 開発用 DB `diary` に対して fresh / reset / refresh / wipe 系の artisan コマンドは実行しない（フックが止める）。必要なら人が手で実行する。
+- 開発用 DB `diary` に対して fresh / reset / refresh / rollback / wipe 系の artisan コマンドは実行しない（フックが止める）。必要なら人が手で実行する。
 - DB 接続情報は `.env` だけに置く。`compose.yaml` の環境変数に `DB_*` を書くと phpunit.xml の設定より優先されてしまう。
 
 ## 触らないもの

@@ -3,7 +3,7 @@
     "allow": [
       "Bash(docker compose exec -T app php artisan test*)",
       "Bash(docker compose exec -T app vendor/bin/pint*)",
-      "Bash(docker compose exec -T app php artisan migrate)",
+      "Bash(docker compose exec -T app php artisan migrate*)",
       "Bash(docker compose ps*)",
       "Bash(docker compose logs*)",
       "Bash(curl -s -o /dev/null -w * http://localhost:8081/*)",
