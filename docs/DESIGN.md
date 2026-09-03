@@ -163,7 +163,7 @@ erDiagram
 - **ログイン機能あり**（2026-09-03 に変更）。一覧は公開、投稿・編集・削除は持ち主（ログイン済み）だけ。第三者が勝手に変更できないようにするための未記載仕様の判断。ユーザー登録画面は作らず、シーダーで持ち主を 1 人作る。ログイン試行は 1 分 5 回まで
 - 表示言語は日本語（`APP_LOCALE=ja`、`APP_TIMEZONE=Asia/Tokyo`）。
 - テーマは「開発者の 1 行日記」。サイト名は **ひとこと開発日誌**。データ構造と機能は課題どおりで、名前・例文・デザイン（#9）だけを開発者向けに寄せる（2026-09-03 決定）。
-- CSS は Tailwind CSS 4 を CLI でビルド（入力 `resources/css/app.css`、出力 `public/css/app.css` をコミット。審査者の Node 環境は不要）。デザインは Google Stitch で作成した 5 画面を基に、色トークンを `@theme` で定義して適用（#9）。仕様に無い要素（タグ・検索・統計など）は置かない。アイコンは使う分だけのインライン SVG。
+- CSS は Tailwind CSS 4 を CLI でビルド（入力 `resources/css/app.css`、出力 `public/css/app.css` をコミット。審査者の Node 環境は不要）。デザインは Google Stitch で作成した 5 画面を基に、色トークンを `@theme` で定義して適用（#9）。仕様に無い要素のうち、シェア（X / Facebook / LINE / リンクのコピー）と前後の日記への導線は詳細ページに採用し、タグ・検索・月フィルタ・統計・状態バッジは置かない。画像が無い日記はダミー画像で形をそろえる。アイコンは使う分だけのインライン SVG。
 - ページネーションは Laravel 標準の `links()` を最小の自作ビュー（Tailwind 非依存）で描画。
 - テスト: Feature テスト（一覧5件区切り・投稿/編集/削除・画像アップロード `Storage::fake`・バリデーション）。DB は **compose 内 MySQL のテスト用 DB `diary_test`**（`phpunit.xml` で `DB_DATABASE=diary_test` を指定、`RefreshDatabase` 使用） ※決定。
 - コード整形は Laravel Pint（同梱）。

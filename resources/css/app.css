@@ -36,6 +36,15 @@
         font-feature-settings: "palt";
         letter-spacing: 0.01em;
     }
+    /* クリックできる要素はカーソルをポインターにする (Tailwind 4 の preflight は button を default にするため) */
+    a[href],
+    button:not(:disabled),
+    label[for],
+    input[type="checkbox"],
+    input[type="file"],
+    summary {
+        cursor: pointer;
+    }
     @media (prefers-reduced-motion: reduce) {
         * {
             transition: none !important;

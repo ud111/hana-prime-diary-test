@@ -35,5 +35,68 @@
                 <img class="mx-auto block max-h-[32rem] w-auto max-w-full" src="{{ $diary->image_url }}" alt="{{ $diary->diary_date->toDateString() }} の写真">
             </figure>
         @endif
+
+        {{-- シェア。外部スクリプトは読み込まず、各サービスの共有 URL とクリップボードだけで実装する --}}
+        @php($shareUrl = route('diaries.show', $diary))
+        @php($shareText = $diary->diary_date->isoFormat('YYYY年M月D日').'の日記 | '.config('app.name'))
+        <div class="flex flex-wrap items-center gap-2 border-t border-outline-variant pt-5" data-share>
+            <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-on-surface-variant"><x-icon name="share" class="h-4 w-4"/>この日記をシェア</span>
+            <a class="btn-secondary h-9 px-3.5 text-[13px]" href="https://twitter.com/intent/tweet?{{ http_build_query(['text' => $shareText, 'url' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer">X</a>
+            <a class="btn-secondary h-9 px-3.5 text-[13px]" href="https://www.facebook.com/sharer/sharer.php?{{ http_build_query(['u' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a class="btn-secondary h-9 px-3.5 text-[13px]" href="https://social-plugins.line.me/lineit/share?{{ http_build_query(['url' => $shareUrl, 'text' => $shareText]) }}" target="_blank" rel="noopener noreferrer">LINE</a>
+            <button type="button" class="btn-secondary h-9 px-3.5 text-[13px]" data-copy-link="{{ $shareUrl }}">
+                <x-icon name="link" class="h-4 w-4"/>
+                <span data-copy-label>リンクをコピー</span>
+            </button>
+        </div>
     </article>
+
+    {{-- 前後の日記への導線 (一覧と同じ並び。左が古い日記、右が新しい日記) --}}
+    <nav class="grid gap-3 sm:grid-cols-2" aria-label="前後の日記">
+        @if ($older)
+            <a href="{{ route('diaries.show', $older) }}" class="card flex items-center gap-3 p-4 transition-colors hover:border-outline">
+                <x-icon name="chevron-left" class="h-4 w-4 shrink-0 text-on-surface-variant"/>
+                <span class="flex min-w-0 flex-col gap-0.5">
+                    <span class="text-xs text-on-surface-variant">前の日記</span>
+                    <span class="num text-[13px] font-semibold">{{ $older->diary_date->isoFormat('YYYY.MM.DD (ddd)') }}</span>
+                    <span class="truncate text-sm">{{ $older->content }}</span>
+                </span>
+            </a>
+        @else
+            <span class="card flex items-center gap-3 p-4 text-on-surface-variant" aria-disabled="true">
+                <x-icon name="chevron-left" class="h-4 w-4 shrink-0"/>
+                <span class="text-sm">これより前の日記はありません</span>
+            </span>
+        @endif
+        @if ($newer)
+            <a href="{{ route('diaries.show', $newer) }}" class="card flex items-center justify-end gap-3 p-4 text-right transition-colors hover:border-outline">
+                <span class="flex min-w-0 flex-col gap-0.5">
+                    <span class="text-xs text-on-surface-variant">次の日記</span>
+                    <span class="num text-[13px] font-semibold">{{ $newer->diary_date->isoFormat('YYYY.MM.DD (ddd)') }}</span>
+                    <span class="truncate text-sm">{{ $newer->content }}</span>
+                </span>
+                <x-icon name="chevron-right" class="h-4 w-4 shrink-0 text-on-surface-variant"/>
+            </a>
+        @else
+            <span class="card flex items-center justify-end gap-3 p-4 text-right text-on-surface-variant" aria-disabled="true">
+                <span class="text-sm">これより新しい日記はありません</span>
+                <x-icon name="chevron-right" class="h-4 w-4 shrink-0"/>
+            </span>
+        @endif
+    </nav>
+
+    {{-- リンクのコピー (無くても共有リンクは使える、補助的な JS) --}}
+    <script>
+        (function () {
+            var button = document.querySelector('[data-copy-link]');
+            if (!button || !navigator.clipboard) return;
+            var label = button.querySelector('[data-copy-label]');
+            button.addEventListener('click', function () {
+                navigator.clipboard.writeText(button.getAttribute('data-copy-link')).then(function () {
+                    label.textContent = 'コピーしました';
+                    setTimeout(function () { label.textContent = 'リンクをコピー'; }, 2000);
+                });
+            });
+        })();
+    </script>
 @endsection

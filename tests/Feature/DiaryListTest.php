@@ -55,6 +55,15 @@ class DiaryListTest extends TestCase
             ->assertSee('/storage/diaries/sample.jpg');
     }
 
+    public function test_shows_placeholder_image_when_no_image(): void
+    {
+        Diary::factory()->create();
+
+        $this->get(route('diaries.index'))
+            ->assertOk()
+            ->assertSee('images/no-image.svg');
+    }
+
     public function test_escapes_content(): void
     {
         Diary::factory()->create(['content' => '<script>alert(1)</script>']);

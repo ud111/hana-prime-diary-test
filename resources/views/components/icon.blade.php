@@ -15,5 +15,7 @@
     @case('code') <path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 4l-4 16"/> @break
     @case('calendar') <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/> @break
     @case('x') <path d="M6 6l12 12M18 6L6 18"/> @break
+    @case('link') <path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/> @break
+    @case('share') <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/> @break
 @endswitch
 </svg>
