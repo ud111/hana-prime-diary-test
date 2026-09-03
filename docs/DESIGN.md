@@ -40,7 +40,8 @@ hana-prime-diary-test/
 │   ├── php/Dockerfile          # php:8.5.10-fpm-alpine + pdo_mysql + composer、UID/GID 引数
 │   ├── php/php.ini             # upload_max_filesize 10M / post_max_size 12M
 │   └── nginx/default.conf      # root public/, client_max_body_size 12m
-├── docs/DESIGN.md              # 本書（リポに含めるかは要ヒアリング）
+├── docs/DESIGN.md              # 本書（設計計画・仕様判断・開発フロー）
+├── docs/SETUP.md               # 環境構築手順（#10）
 ├── README.md                   # セットアップ手順・仕様・AI 利用申告
 └── (Laravel 標準構成: app/ routes/ resources/ database/ tests/ ...)
 ```
@@ -67,8 +68,8 @@ hana-prime-diary-test/
 
 - 台帳 `infra/registry.yml` に `dir: hana-prime-diary-test / name: hana_prime_diary_test / ports {web: 8081, mysql: 3327} / domains: []` を追記し `make doctor` で衝突ゼロ確認。
 - 共有 Traefik・phpMyAdmin・node コンテナは **付けない**（提出物を最小に保つ）。DB を GUI で見たい場合はホストの 3327 に直結。
-- ホストの uid/gid が 1000 以外の Linux では `.env` に `UID=` / `GID=` を書く（compose が変数展開に使う）。README に記載する。
-- `.env` はグローバルルールにより **自動生成・編集しない**。`.env.example` を整備し、`cp .env.example .env` はユーザーに実行依頼する（README にも同手順を記載）。
+- ホストの uid/gid が 1000 以外の Linux では、最初の起動前に `.env` を用意して `UID=` / `GID=` を書く（compose が変数展開に使う）。手順は `docs/SETUP.md`。
+- `.env` は Claude が **自動生成・編集しない**。審査者向けには `composer run setup` が `.env.example` からコピーする。開発中の `.env` 作成と `APP_KEY` 生成はユーザーが実行した。
 - 審査者向け起動手順（README に記載予定）:
   ```bash
   docker compose up -d --build
@@ -127,7 +128,7 @@ hana-prime-diary-test/
 - ページネーションは Laravel 標準の `links()` を最小の自作ビュー（Tailwind 非依存）で描画。
 - テスト: Feature テスト（一覧5件区切り・投稿/編集/削除・画像アップロード `Storage::fake`・バリデーション）。DB は **compose 内 MySQL のテスト用 DB `diary_test`**（`phpunit.xml` で `DB_DATABASE=diary_test` を指定、`RefreshDatabase` 使用） ※決定。
 - コード整形は Laravel Pint（同梱）。
-- シーダー: `DiaryFactory` で 12 件投入できる `DatabaseSeeder`（ページネーション確認用、任意実行）。
+- シーダー: `DatabaseSeeder` が持ち主ユーザー 1 人（`UserSeeder`、ログインに必要）と日記 12 件（`DiarySeeder`、ページネーション確認用）を投入する。
 
 ## 6. 提出物
 

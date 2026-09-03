@@ -9,7 +9,7 @@ class StoreDiaryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // 認証は無いので誰でも投稿できる
+        // 投稿できるのはログイン済みの持ち主だけだが、その制御はルートの auth ミドルウェアで行う
         return true;
     }
 

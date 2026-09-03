@@ -27,7 +27,7 @@ Laravel で作った 1 行日記サイトです。開発者が 1 日 1 行だけ
 git clone https://github.com/ud111/hana-prime-diary-test.git
 cd hana-prime-diary-test
 docker compose up -d --build
-docker compose exec app composer run setup   # composer install / .env 作成 / key:generate / migrate / storage:link
+docker compose exec app composer run setup   # 初回のみ: composer install / .env 作成 / key:generate / migrate / storage:link
 docker compose exec app php artisan db:seed  # 持ち主アカウントとダミーの日記 12 件
 ```
 

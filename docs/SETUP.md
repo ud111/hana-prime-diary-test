@@ -26,7 +26,7 @@ docker compose up -d --build
 docker compose exec app composer run setup
 ```
 
-このコマンドが順に行うこと:
+初回だけ実行します（2 回目以降は `key:generate` が APP_KEY を作り直し、ログイン中のセッションが無効になります）。このコマンドが順に行うこと:
 
 1. `composer install`
 2. `.env` が無ければ `.env.example` からコピー
@@ -56,14 +56,16 @@ docker compose exec app vendor/bin/pint --test  # コード整形チェック
 ## 4. よくあるつまずき
 
 **Linux で uid が 1000 以外のユーザーの場合**
-app コンテナはホストの uid/gid 1000 で動きます。ホストの uid が違うと bind mount への書き込みで失敗するので、プロジェクト直下の `.env` に次を追加してから `docker compose up -d --build` をやり直してください（compose はこの `.env` を変数展開に使います）。
+app コンテナはホストの uid/gid 1000 で動きます。ホストの uid が違うと、コンテナが作る `.env` や `vendor/` の所有者がずれて書き込みに失敗します。`id -u` が 1000 以外なら、**最初の `docker compose up` より前に** `.env` を用意して uid/gid を書いてください（compose はこの `.env` を変数展開に使います）。
 
-```
-UID=1001
-GID=1001
+```bash
+cp .env.example .env
+echo "UID=$(id -u)" >> .env
+echo "GID=$(id -g)" >> .env
+docker compose up -d --build
 ```
 
-macOS / Windows の Docker Desktop はファイル所有権を吸収するので、この設定は不要です。
+このあとの手順は同じです（`composer run setup` は `.env` が既にあればコピーを飛ばします）。macOS / Windows の Docker Desktop はファイル所有権を吸収するので、この設定は不要です。
 
 **画像が表示されない**
 `public/storage` のシンボリックリンクが無い状態です。`docker compose exec app php artisan storage:link` を実行してください。
@@ -76,7 +78,7 @@ docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS dia
 ```
 
 **アップロードが 413 になる**
-nginx と PHP の上限は 12MB です。アプリ側の上限（5MB）を大きく超えるファイルを送ると、バリデーションより前に nginx が 413 を返します。
+上限は nginx が 12MB、PHP は 1 ファイル 10MB（POST 全体で 12MB）です。アプリ側の上限（5MB）を大きく超えるファイルを送ると、バリデーションより前に nginx が 413 を返します。
 
 ## 5. MySQL 9.7 LTS で動かす場合
 
