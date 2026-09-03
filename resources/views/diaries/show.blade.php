@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', $diary->diary_date->isoFormat('YYYY年M月D日').' の日記 | '.config('app.name'))
-
 @php($pageTitle = $diary->diary_date->isoFormat('YYYY年M月D日').' の日記 | '.config('app.name'))
+@section('title', $pageTitle)
+
 @php($ogImage = $diary->hasImage() ? $diary->image_url : asset('images/ogp.png'))
 @push('head')
     <x-seo

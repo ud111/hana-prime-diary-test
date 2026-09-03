@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Diary;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -52,10 +51,11 @@ class SeoTest extends TestCase
     {
         $diary = Diary::factory()->create(['content' => '</script><script>alert(1)</script>']);
 
-        $response = $this->get(route('diaries.show', $diary))->assertOk();
-        // JSON-LD 内では < > が < > にエスケープされ、生の </script> は本文由来では現れない
-        $this->assertStringNotContainsString('"headline":"</script>', $response->getContent());
-        $response->assertSee('</script>', false);
+        // JSON-LD 内では < > が \u003C \u003E にエスケープされ、本文で script を閉じられない
+        $this->get(route('diaries.show', $diary))
+            ->assertOk()
+            ->assertSee('"headline":"\\u003C/script\\u003E\\u003Cscript\\u003Ealert(1)\\u003C/script\\u003E"', false)
+            ->assertDontSee('"headline":"</script>', false);
     }
 
     public function test_private_pages_are_noindex(): void
@@ -64,9 +64,35 @@ class SeoTest extends TestCase
 
         $this->get(route('login'))->assertSee('<meta name="robots" content="noindex, nofollow">', false)->assertDontSee('rel="canonical"', false);
 
-        $this->actingAs(User::factory()->create());
+        $this->actingAsOwner();
         $this->get(route('diaries.create'))->assertSee('noindex, nofollow');
         $this->get(route('diaries.edit', $diary))->assertSee('noindex, nofollow');
+    }
+
+    public function test_absolute_urls_ignore_host_header(): void
+    {
+        // Host ヘッダを偽装しても canonical / sitemap は APP_URL 基準になる
+        $diary = Diary::factory()->create();
+        $expected = rtrim(config('app.url'), '/');
+
+        $this->withHeaders(['Host' => 'evil.example'])->get('/diaries/'.$diary->id)
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="'.$expected.'/diaries/'.$diary->id.'">', false)
+            ->assertDontSee('evil.example');
+
+        $this->withHeaders(['Host' => 'evil.example'])->get('/sitemap.xml')
+            ->assertOk()
+            ->assertSee('<loc>'.$expected.'</loc>', false)
+            ->assertDontSee('evil.example');
+    }
+
+    public function test_index_page_two_has_self_referencing_canonical(): void
+    {
+        Diary::factory()->count(6)->create();
+
+        $this->get(route('diaries.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="'.route('diaries.index').'?page=2">', false);
     }
 
     public function test_robots_txt(): void

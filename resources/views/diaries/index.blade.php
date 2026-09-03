@@ -6,7 +6,7 @@
     <x-seo
         :title="'日記一覧 | '.config('app.name')"
         description="1日1行だけ書く開発日記。コミットに残らない気づきや学びを、日付と写真とともに記録します。"
-        :url="route('diaries.index')"
+        :url="$diaries->currentPage() > 1 ? $diaries->url($diaries->currentPage()) : route('diaries.index')"
         :json-ld="[[
             '@context' => 'https://schema.org',
             '@type' => 'WebSite',
