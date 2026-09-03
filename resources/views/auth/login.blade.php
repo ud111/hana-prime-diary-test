@@ -7,7 +7,7 @@
 @endpush
 
 @section('content')
-    <section class="card m-auto mt-4 flex w-full max-w-sm flex-col gap-6 p-6 sm:p-8">
+    <section class="card my-auto mx-auto mt-4 flex w-full max-w-sm flex-col gap-6 p-6 sm:p-8">
         <div class="flex flex-col items-center gap-3 text-center">
             <div class="flex flex-col gap-1">
                 <h1 class="text-lg font-bold tracking-tight">ログイン</h1>
@@ -19,19 +19,21 @@
             @csrf
             <div>
                 <label for="email" class="field-label">メールアドレス</label>
-                <input type="email" id="email" name="email" required autofocus autocomplete="username" class="field-input num" value="{{ old('email') }}">
+                <input type="email" id="email" name="email" required autofocus autocomplete="username" placeholder="you@example.com" class="field-input num" value="{{ old('email') }}">
                 @error('email')
                     <p class="field-error">{{ $message }}</p>
                 @enderror
             </div>
             <div>
                 <label for="password" class="field-label">パスワード</label>
-                <input type="password" id="password" name="password" required autocomplete="current-password" class="field-input">
+                <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="パスワード" class="field-input">
                 @error('password')
                     <p class="field-error">{{ $message }}</p>
                 @enderror
             </div>
-            <button type="submit" class="btn-primary mt-1 w-full">ログイン</button>
+            <button type="submit" class="btn-primary flex items-center justify-center mt-1 w-full py-1.5">
+                <span class="text-white font-bold text-base sm:text-lg">ログイン</span>
+            </button>
         </form>
     </section>
 @endsection
