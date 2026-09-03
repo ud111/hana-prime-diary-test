@@ -22,6 +22,5 @@ class AppServiceProvider extends ServiceProvider
     {
         // ページネーションのリンクは Tailwind に依存しない自前のビューで描画する
         Paginator::defaultView('pagination.default');
-        Paginator::defaultSimpleView('pagination.default');
     }
 }
