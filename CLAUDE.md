@@ -50,7 +50,7 @@ Laravel 13 / PHP 8.5 / MySQL 26.7 で作る 1 行日記サイト。仕様は `do
 ```bash
 docker compose up -d --build                       # 環境起動
 docker compose exec app php artisan migrate        # マイグレーション (差分)
-docker compose exec app php artisan db:seed        # ダミーデータ 12 件
+docker compose exec app php artisan db:seed        # 開発の記録 14 件 (画像付き)
 docker compose exec app php artisan test           # テスト (diary_test)
 docker compose exec app vendor/bin/pint --test     # 整形チェック
 ```

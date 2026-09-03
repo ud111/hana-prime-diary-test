@@ -64,10 +64,18 @@ class LoginTest extends TestCase
                 ->assertSessionHasErrors('email');
         }
 
-        // 6 回目は 429 で弾かれる (正しいパスワードでも)
+        // 6 回目は 429 で弾かれる (正しいパスワードでも)。エラーページは日本語
         $this->post(route('login'), ['email' => 'owner@example.com', 'password' => 'secret-pass'])
-            ->assertStatus(429);
+            ->assertStatus(429)
+            ->assertSee('しばらく時間をおいてください');
         $this->assertGuest();
+    }
+
+    public function test_array_email_does_not_crash_rate_limiter(): void
+    {
+        // email[]=x のような配列でもレートリミッターが落ちず、通常のバリデーションエラーになる
+        $this->post(route('login'), ['email' => ['x'], 'password' => 'y'])
+            ->assertSessionHasErrors('email');
     }
 
     public function test_redirects_to_intended_page_after_login(): void

@@ -38,7 +38,10 @@ class AppServiceProvider extends ServiceProvider
 
         // ログインの総当たり対策: メールアドレスと IP の組み合わせごとに 1 分 5 回まで
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by(strtolower((string) $request->input('email')).'|'.$request->ip());
+            // email[]=... のような配列が来ても落ちないよう、文字列のときだけキーに使う
+            $email = $request->input('email');
+
+            return Limit::perMinute(5)->by((is_string($email) ? strtolower($email) : '').'|'.$request->ip());
         });
     }
 }

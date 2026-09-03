@@ -93,13 +93,7 @@ class Diary extends Model
      */
     public function older(): ?Diary
     {
-        return static::query()
-            ->where(function (Builder $q) {
-                $q->where('diary_date', '<', $this->diary_date->toDateString())
-                    ->orWhere(fn (Builder $q2) => $q2->where('diary_date', $this->diary_date->toDateString())->where('id', '<', $this->id));
-            })
-            ->latestFirst()
-            ->first();
+        return $this->neighbor('<')->latestFirst()->first();
     }
 
     /**
@@ -107,13 +101,22 @@ class Diary extends Model
      */
     public function newer(): ?Diary
     {
-        return static::query()
-            ->where(function (Builder $q) {
-                $q->where('diary_date', '>', $this->diary_date->toDateString())
-                    ->orWhere(fn (Builder $q2) => $q2->where('diary_date', $this->diary_date->toDateString())->where('id', '>', $this->id));
-            })
-            ->orderBy('diary_date')->orderBy('id')
-            ->first();
+        return $this->neighbor('>')->orderBy('diary_date')->orderBy('id')->first();
+    }
+
+    /**
+     * 並び順 (diary_date, id) でこの日記より前 ('<') または後 ('>') にある日記のクエリ
+     *
+     * @return Builder<Diary>
+     */
+    private function neighbor(string $operator): Builder
+    {
+        $date = $this->diary_date->toDateString();
+
+        return static::query()->where(function (Builder $q) use ($operator, $date) {
+            $q->where('diary_date', $operator, $date)
+                ->orWhere(fn (Builder $q2) => $q2->where('diary_date', $date)->where('id', $operator, $this->id));
+        });
     }
 
     /**

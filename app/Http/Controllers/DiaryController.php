@@ -12,10 +12,10 @@ use Illuminate\View\View;
 
 class DiaryController extends Controller
 {
-    public function __construct(private readonly DiaryImageProcessor $images) {}
-
     /** 一覧の 1 ページあたりの件数 (課題仕様: 5 件ごと) */
     public const PER_PAGE = 5;
+
+    public function __construct(private readonly DiaryImageProcessor $images) {}
 
     /**
      * 日記一覧。新しい日付順に 5 件ずつページ送りする

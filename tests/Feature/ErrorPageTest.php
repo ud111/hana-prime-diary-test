@@ -27,19 +27,6 @@ class ErrorPageTest extends TestCase
             ->assertSee('ページが見つかりません');
     }
 
-    public function test_login_throttle_shows_japanese_429(): void
-    {
-        User::factory()->create(['email' => 'owner@example.com', 'password' => 'secret-pass']);
-
-        for ($i = 0; $i < 5; $i++) {
-            $this->post(route('login'), ['email' => 'owner@example.com', 'password' => 'wrong']);
-        }
-
-        $this->post(route('login'), ['email' => 'owner@example.com', 'password' => 'secret-pass'])
-            ->assertStatus(429)
-            ->assertSee('しばらく時間をおいてください');
-    }
-
     public function test_419_and_500_views_exist(): void
     {
         // 419 (CSRF 切れ) と 500 はテストで再現しにくいので、ビューが描画できることだけ確かめる

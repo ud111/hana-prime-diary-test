@@ -56,20 +56,25 @@ class DiaryImageProcessor
             throw new ImageProcessingException('画像を読み込めませんでした。別の JPEG ファイルを選んでください。');
         }
 
-        // スマホの縦写真などは EXIF の向き情報だけで回転しているので、ピクセルを実際に回して正規化する
-        $source = $this->applyExifOrientation($source, $file);
-        $width = imagesx($source);
-        $height = imagesy($source);
+        // スマホの縦写真などは EXIF の向き情報だけで回転しているので、軽量版はピクセルを実際に回して正規化する。
+        // 回転は元画像ではなく縮小後の小さい画像に対して行い、大きな画像でメモリを使い切らないようにする
+        $orientation = $this->exifOrientation($file);
+        $swapped = in_array($orientation, [5, 6, 7, 8], true);
+        // 回転後の (利用者が見る向きの) 寸法
+        $width = $swapped ? imagesy($source) : imagesx($source);
+        $height = $swapped ? imagesx($source) : imagesy($source);
         $formats = self::availableFormats();
 
         foreach (self::WIDTHS as $targetWidth) {
             // 元より大きくはしない (拡大すると容量だけ増える)
             $w = min($targetWidth, $width);
             $h = (int) round($height * $w / $width);
-            $resized = imagescale($source, $w, $h, IMG_BICUBIC);
+            // 回転前の元画像を、回転後に w×h になる大きさへ縮小してから向きを直す
+            $resized = imagescale($source, $swapped ? $h : $w, $swapped ? $w : $h, IMG_BICUBIC);
             if ($resized === false) {
                 throw new ImageProcessingException('画像の縮小に失敗しました。');
             }
+            $resized = $this->applyOrientation($resized, $orientation);
             foreach ($formats as $format) {
                 $this->write($resized, $format, Storage::disk(Diary::IMAGE_DISK)->path(self::variantPath($diary->image_path, $targetWidth, $format)));
             }
@@ -116,16 +121,24 @@ class DiaryImageProcessor
     }
 
     /**
-     * EXIF の Orientation (1〜8) に従って回転・反転し、向きをピクセルに焼き込む
+     * EXIF の Orientation (1〜8)。読めなければ 1 (そのまま)
      */
-    private function applyExifOrientation(GdImage $image, string $file): GdImage
+    private function exifOrientation(string $file): int
     {
         if (! function_exists('exif_read_data')) {
-            return $image;
+            return 1;
         }
         $exif = @exif_read_data($file);
         $orientation = (int) ($exif['Orientation'] ?? 1);
 
+        return ($orientation >= 1 && $orientation <= 8) ? $orientation : 1;
+    }
+
+    /**
+     * Orientation に従って回転・反転し、向きをピクセルに焼き込む
+     */
+    private function applyOrientation(GdImage $image, int $orientation): GdImage
+    {
         // 反転を含む値 (2, 4, 5, 7) はまず左右反転してから回転する
         if (in_array($orientation, [2, 4, 5, 7], true)) {
             imageflip($image, IMG_FLIP_HORIZONTAL);
