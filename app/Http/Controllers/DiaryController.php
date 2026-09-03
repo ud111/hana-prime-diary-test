@@ -27,6 +27,14 @@ class DiaryController extends Controller
     }
 
     /**
+     * 詳細。画像を大きく見せる閲覧用のページで、存在しない ID は 404
+     */
+    public function show(Diary $diary): View
+    {
+        return view('diaries.show', compact('diary'));
+    }
+
+    /**
      * 新規投稿フォーム
      */
     public function create(): View

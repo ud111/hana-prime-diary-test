@@ -18,7 +18,11 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
 // 日記の作成・編集・削除は持ち主 (ログイン済み) だけ。未ログインは login ルートへ転送される
-// 一覧 (index) は上の / で受け、詳細ページ (show) は課題に無いので作らない
+// 一覧 (index) は上の / で受ける
 Route::resource('diaries', DiaryController::class)
     ->except(['index', 'show'])
     ->middleware('auth');
+
+// 詳細 (show) は一覧と同じく誰でも閲覧できる。
+// /diaries/create が {diary} に捕まらないよう、リソースルートより後に定義する
+Route::get('/diaries/{diary}', [DiaryController::class, 'show'])->name('diaries.show');
