@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <!-- テスト専用の暗号化キー (.env が無い CI でも動かすため) -->
+        <env name="APP_KEY" value="base64:fg27cd43rZkhqfu2DoJHH/23Jgh6OcbRZ1QcacJ6epA="/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="BROADCAST_CONNECTION" value="null"/>
+        <env name="CACHE_STORE" value="array"/>
+        <!-- compose 内 MySQL のテスト用 DB (docker/mysql/init で作成)。CI では環境変数で上書きする -->
+        <env name="DB_CONNECTION" value="mysql"/>
+        <env name="DB_HOST" value="db"/>
+        <env name="DB_PORT" value="3306"/>
+        <env name="DB_DATABASE" value="diary_test"/>
+        <env name="DB_USERNAME" value="diary"/>
+        <env name="DB_PASSWORD" value="secret"/>
+        <env name="DB_URL" value=""/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="NIGHTWATCH_ENABLED" value="false"/>
+    </php>
+</phpunit>
