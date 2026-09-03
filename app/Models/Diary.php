@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\DiaryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,6 +51,17 @@ class Diary extends Model
                 ? null
                 : Storage::disk(self::IMAGE_DISK)->url($this->image_path)
         );
+    }
+
+    /**
+     * 一覧の並び順: 日付の新しい順、同じ日付なら id の大きい (後から登録した) 順
+     *
+     * @param  Builder<Diary>  $query
+     * @return Builder<Diary>
+     */
+    public function scopeLatestFirst(Builder $query): Builder
+    {
+        return $query->orderByDesc('diary_date')->orderByDesc('id');
     }
 
     /**
