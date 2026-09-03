@@ -175,7 +175,7 @@ erDiagram
 - SEO（#36）: 各ページに description / OGP / Twitter カード、公開ページに canonical、ログイン・投稿・編集は noindex。JSON-LD は一覧に `WebSite`、詳細に `BlogPosting` と `BreadcrumbList`。`/robots.txt` と `/sitemap.xml` はルートで動的生成（sitemap は 1 時間キャッシュ、日記の保存・削除で破棄）。絶対 URL は `APP_URL` 基準。既定の OGP 画像は `public/images/ogp.png`。
 - テスト: Feature テスト（一覧5件区切り・投稿/編集/削除・画像アップロード `Storage::fake`・バリデーション）。DB は **compose 内 MySQL のテスト用 DB `diary_test`**（`phpunit.xml` で `DB_DATABASE=diary_test` を指定、`RefreshDatabase` 使用） ※決定。
 - コード整形は Laravel Pint（同梱）。
-- シーダー: `DatabaseSeeder` が持ち主ユーザー 1 人（`UserSeeder`、ログインに必要）と日記 12 件（`DiarySeeder`、ページネーション確認用）を投入する。
+- シーダー: `DatabaseSeeder` が持ち主ユーザー 1 人（`UserSeeder`、ログインに必要）と、このサイトを作った開発の記録 14 件（`DiarySeeder`、うち 10 件は Gemini で生成し `database/seeders/images/` に同梱した画像付き。軽量版も生成）を投入する。冪等。
 
 ## 6. 提出物
 
