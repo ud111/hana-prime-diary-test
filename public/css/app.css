@@ -1,0 +1,7 @@
+/* 最低限のスタイル。画面は Issue #5 以降で追加し、デザイン適用は Issue #9 で行う */
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    color: #222;
+    background: #fff;
+}
