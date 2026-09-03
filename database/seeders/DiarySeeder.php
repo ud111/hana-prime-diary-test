@@ -3,22 +3,38 @@
 namespace Database\Seeders;
 
 use App\Models\Diary;
-use Database\Factories\DiaryFactory;
-use Illuminate\Database\Eloquent\Factories\Sequence;
+use App\Services\DiaryImageProcessor;
+use Database\Seeders\Data\DevelopmentDiaries;
 use Illuminate\Database\Seeder;
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DiarySeeder extends Seeder
 {
-    /**
-     * ページネーション (5 件ごと) の確認用に、3 ページ分になる 12 件を投入する
-     */
-    public function run(): void
-    {
-        // 例文が重複しないよう、シャッフルした例文を順番に割り当てる
-        $contents = collect(DiaryFactory::SAMPLE_CONTENTS)->shuffle()->take(12)
-            ->map(fn (string $content) => ['content' => $content])
-            ->all();
+    /** 同梱している画像の置き場 */
+    public const IMAGE_DIR = __DIR__.'/images';
 
-        Diary::factory()->count(12)->state(new Sequence(...$contents))->create();
+    /**
+     * 「このサイトを作った開発の記録」を日記として投入する。
+     * 同じ日付・本文の日記が既にあれば作らないので、何度実行しても増えない
+     */
+    public function run(DiaryImageProcessor $processor): void
+    {
+        foreach (DevelopmentDiaries::all() as $entry) {
+            $diary = Diary::firstOrNew(['diary_date' => $entry['date'], 'content' => $entry['content']]);
+            if ($diary->exists) {
+                continue;
+            }
+
+            // 同梱画像を public ディスクへ ULID 名でコピーし、配信用の軽量版も作る
+            if ($entry['image'] !== null) {
+                $source = new File(self::IMAGE_DIR.'/'.$entry['image']);
+                $diary->image_path = Storage::disk(Diary::IMAGE_DISK)->putFileAs(Diary::IMAGE_DIR, $source, Str::ulid().'.jpg');
+                $processor->process($diary);
+            }
+
+            $diary->save();
+        }
     }
 }

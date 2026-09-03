@@ -34,7 +34,7 @@ docker compose exec app composer run setup
 4. `php artisan migrate --force`
 5. `php artisan storage:link`（アップロード画像を公開するためのシンボリックリンク）
 
-続けてダミーデータを入れます。持ち主のログインアカウントと、ページネーション確認用の日記 12 件が作られます。
+続けてダミーデータを入れます。持ち主のログインアカウントと、「このサイトを作った開発の記録」の日記 14 件（うち 10 件は Gemini で生成した画像付き。軽量版も同時に作られます）が投入されます。何度実行しても増えません。
 
 ```bash
 docker compose exec app php artisan db:seed
