@@ -31,58 +31,41 @@
             <p class="num mt-2 text-[13px] text-on-surface-variant">{{ mb_strlen($diary->content) }} 文字</p>
         </div>
         @if ($diary->hasImage())
-            <figure class="overflow-hidden rounded-xl border border-outline-variant bg-surface-low">
-                <img class="mx-auto block max-h-[32rem] w-auto max-w-full" src="{{ $diary->image_url }}" alt="{{ $diary->diary_date->toDateString() }} の写真">
+            {{-- 画像が横幅に満たないときは、同じ画像を引き伸ばしてぼかした背景で余白を埋める --}}
+            <figure class="relative overflow-hidden rounded-xl border border-outline-variant bg-surface-low">
+                <img class="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-2xl" src="{{ $diary->image_url }}" alt="" aria-hidden="true">
+                <img class="relative mx-auto block max-h-[32rem] w-auto max-w-full" src="{{ $diary->image_url }}" alt="{{ $diary->diary_date->toDateString() }} の写真">
             </figure>
         @endif
 
-        {{-- シェア。外部スクリプトは読み込まず、各サービスの共有 URL とクリップボードだけで実装する --}}
+        {{-- シェア (Stitch のデザイン)。外部スクリプトは読み込まず、各サービスの共有 URL とクリップボードだけで実装する --}}
         @php($shareUrl = route('diaries.show', $diary))
         @php($shareText = $diary->diary_date->isoFormat('YYYY年M月D日').'の日記 | '.config('app.name'))
-        <div class="flex flex-wrap items-center gap-2 border-t border-outline-variant pt-5" data-share>
-            <span class="inline-flex items-center gap-1.5 text-[13px] font-medium text-on-surface-variant"><x-icon name="share" class="h-4 w-4"/>この日記をシェア</span>
-            <a class="btn-secondary h-9 px-3.5 text-[13px]" href="https://twitter.com/intent/tweet?{{ http_build_query(['text' => $shareText, 'url' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer">X</a>
-            <a class="btn-secondary h-9 px-3.5 text-[13px]" href="https://www.facebook.com/sharer/sharer.php?{{ http_build_query(['u' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer">Facebook</a>
-            <a class="btn-secondary h-9 px-3.5 text-[13px]" href="https://social-plugins.line.me/lineit/share?{{ http_build_query(['url' => $shareUrl, 'text' => $shareText]) }}" target="_blank" rel="noopener noreferrer">LINE</a>
-            <button type="button" class="btn-secondary h-9 px-3.5 text-[13px]" data-copy-link="{{ $shareUrl }}">
-                <x-icon name="link" class="h-4 w-4"/>
-                <span data-copy-label>リンクをコピー</span>
-            </button>
+        <div class="flex flex-col items-center gap-3 border-t border-outline-variant pt-6">
+            <span class="text-xs tracking-wider text-outline">この日記をシェアする</span>
+            <div class="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-lowest px-3 py-2 shadow-sm">
+                <a class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface" href="https://twitter.com/intent/tweet?{{ http_build_query(['text' => $shareText, 'url' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer" title="X でシェア" aria-label="X でシェア">
+                    <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface" href="https://www.facebook.com/sharer/sharer.php?{{ http_build_query(['u' => $shareUrl]) }}" target="_blank" rel="noopener noreferrer" title="Facebook でシェア" aria-label="Facebook でシェア">
+                    <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                </a>
+                <a class="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface" href="https://social-plugins.line.me/lineit/share?{{ http_build_query(['url' => $shareUrl, 'text' => $shareText]) }}" target="_blank" rel="noopener noreferrer" title="LINE でシェア" aria-label="LINE でシェア">
+                    <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 5.64 2 10.13c0 4.02 3.56 7.39 8.37 8.02.33.07.77.22.88.5.1.25.07.65.03.9l-.14.86c-.04.25-.2 1 .87.54 1.07-.45 5.78-3.4 7.89-5.83C21.36 13.5 22 11.9 22 10.13 22 5.64 17.52 2 12 2zm-3.1 10.6H6.4a.5.5 0 0 1-.5-.5V8.3a.5.5 0 1 1 1 0v3.3h2a.5.5 0 1 1 0 1zm1.9-.5a.5.5 0 1 1-1 0V8.3a.5.5 0 1 1 1 0v3.8zm4.6 0a.5.5 0 0 1-.9.3l-2.1-2.8v2.5a.5.5 0 1 1-1 0V8.3a.5.5 0 0 1 .9-.3l2.1 2.8V8.3a.5.5 0 1 1 1 0v3.8zm3.6-2.4a.5.5 0 1 1 0 1h-2v.9h2a.5.5 0 1 1 0 1h-2.5a.5.5 0 0 1-.5-.5V8.3a.5.5 0 0 1 .5-.5H19a.5.5 0 1 1 0 1h-2v.9h2z"/></svg>
+                </a>
+                <span class="mx-0.5 h-5 w-px bg-surface-container" aria-hidden="true"></span>
+                <button type="button" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface" data-copy-link="{{ $shareUrl }}">
+                    <x-icon name="link" class="h-4 w-4"/>
+                    <span data-copy-label>リンクをコピー</span>
+                </button>
+            </div>
         </div>
     </article>
 
     {{-- 前後の日記への導線 (一覧と同じ並び。左が古い日記、右が新しい日記) --}}
     <nav class="grid gap-3 sm:grid-cols-2" aria-label="前後の日記">
-        @if ($older)
-            <a href="{{ route('diaries.show', $older) }}" class="card flex items-center gap-3 p-4 transition-colors hover:border-outline">
-                <x-icon name="chevron-left" class="h-4 w-4 shrink-0 text-on-surface-variant"/>
-                <span class="flex min-w-0 flex-col gap-0.5">
-                    <span class="text-xs text-on-surface-variant">前の日記</span>
-                    <span class="num text-[13px] font-semibold">{{ $older->diary_date->isoFormat('YYYY.MM.DD (ddd)') }}</span>
-                    <span class="truncate text-sm">{{ $older->content }}</span>
-                </span>
-            </a>
-        @else
-            <span class="card flex items-center gap-3 p-4 text-on-surface-variant" aria-disabled="true">
-                <x-icon name="chevron-left" class="h-4 w-4 shrink-0"/>
-                <span class="text-sm">これより前の日記はありません</span>
-            </span>
-        @endif
-        @if ($newer)
-            <a href="{{ route('diaries.show', $newer) }}" class="card flex items-center justify-end gap-3 p-4 text-right transition-colors hover:border-outline">
-                <span class="flex min-w-0 flex-col gap-0.5">
-                    <span class="text-xs text-on-surface-variant">次の日記</span>
-                    <span class="num text-[13px] font-semibold">{{ $newer->diary_date->isoFormat('YYYY.MM.DD (ddd)') }}</span>
-                    <span class="truncate text-sm">{{ $newer->content }}</span>
-                </span>
-                <x-icon name="chevron-right" class="h-4 w-4 shrink-0 text-on-surface-variant"/>
-            </a>
-        @else
-            <span class="card flex items-center justify-end gap-3 p-4 text-right text-on-surface-variant" aria-disabled="true">
-                <span class="text-sm">これより新しい日記はありません</span>
-                <x-icon name="chevron-right" class="h-4 w-4 shrink-0"/>
-            </span>
-        @endif
+        @include('diaries._nav_card', ['target' => $older, 'direction' => 'older'])
+        @include('diaries._nav_card', ['target' => $newer, 'direction' => 'newer'])
     </nav>
 
     {{-- リンクのコピー (無くても共有リンクは使える、補助的な JS) --}}
